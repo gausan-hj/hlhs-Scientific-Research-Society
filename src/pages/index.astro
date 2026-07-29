@@ -1,0 +1,72 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import HeroBanner from '@components/home/HeroBanner.astro';
+import AboutPreview from '@components/home/AboutPreview.astro';
+import AnnouncementList from '@components/home/AnnouncementList.astro';
+import ActivityList from '@components/home/ActivityList.astro';
+import GalleryPreview from '@components/home/GalleryPreview.astro';
+import FeatureGrid from '@components/home/FeatureGrid.astro';
+import CTASection from '@components/home/CTASection.astro';
+import { sanityClient } from 'sanity:client';
+import {
+  HOME_PAGE_QUERY,
+  LATEST_ANNOUNCEMENTS_QUERY,
+  LATEST_ACTIVITIES_QUERY,
+  LATEST_GALLERY_QUERY,
+} from '@sanity/queries';
+
+const [homepage, announcements, activities, galleries] = await Promise.all([
+  sanityClient.fetch(HOME_PAGE_QUERY),
+  sanityClient.fetch(LATEST_ANNOUNCEMENTS_QUERY),
+  sanityClient.fetch(LATEST_ACTIVITIES_QUERY),
+  sanityClient.fetch(LATEST_GALLERY_QUERY),
+]);
+---
+
+<BaseLayout>
+  {homepage ? (
+    <>
+      <HeroBanner
+        title={homepage.heroTitle}
+        subtitle={homepage.heroSubtitle}
+        image={homepage.heroImage}
+        buttonText={homepage.heroButtonText}
+        buttonLink={homepage.heroButtonLink}
+      />
+
+      <AboutPreview
+        title={homepage.aboutTitle}
+        content={homepage.aboutText}
+        image={homepage.aboutImage}
+      />
+
+      {announcements.length > 0 && <AnnouncementList announcements={announcements} />}
+
+      {activities.length > 0 && <ActivityList activities={activities} />}
+
+      {galleries.length > 0 && <GalleryPreview galleries={galleries} />}
+
+      {homepage.features?.length > 0 && <FeatureGrid features={homepage.features} />}
+
+      <CTASection
+        title={homepage.ctaTitle}
+        text={homepage.ctaText}
+        buttonText={homepage.ctaButtonText}
+        buttonLink={homepage.ctaButtonLink}
+      />
+    </>
+  ) : (
+    <section class="py-32 text-center">
+      <h1 class="text-4xl font-bold text-text mb-4">科研學會</h1>
+      <p class="text-lg text-text-muted mb-8 max-w-lg mx-auto">
+        歡迎來到科研學會官方網站。請先登入 Sanity Studio 設定首頁內容。
+      </p>
+      <a
+        href="/admin"
+        class="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white font-medium text-sm hover:bg-primary-700 transition-colors"
+      >
+        前往後台管理
+      </a>
+    </section>
+  )}
+</BaseLayout>

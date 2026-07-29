@@ -1,0 +1,89 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SanityImage from '@components/common/SanityImage.astro';
+import RichText from '@components/common/RichText.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import CategoryBadge from '@components/common/CategoryBadge.astro';
+import { sanityClient } from 'sanity:client';
+import { ANNOUNCEMENT_BY_SLUG_QUERY } from '@sanity/queries';
+import { formatDate, blocksToText, siteUrl } from '@lib/utils';
+
+export async function getStaticPaths() {
+  const announcements = await sanityClient.fetch(
+    `*[_type == "announcement" && defined(slug.current)].slug.current`
+  );
+  return announcements.map((slug: string) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const announcement = await sanityClient.fetch(ANNOUNCEMENT_BY_SLUG_QUERY, { slug });
+
+if (!announcement) {
+  return Astro.redirect('/announcements');
+}
+
+const seoTitle = announcement.seo?.metaTitle || announcement.title;
+const seoDescription = announcement.seo?.metaDescription || announcement.excerpt || blocksToText(announcement.body);
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  image={announcement.seo?.ogImage ? undefined : undefined}
+  canonical={siteUrl(`/announcements/${slug}`)}
+  type="article"
+  publishedAt={announcement.publishedAt}
+>
+  <article class="py-16 lg:py-24">
+    <div class="container-custom max-w-4xl">
+      <!-- Header -->
+      <ScrollReveal>
+        <div class="text-center mb-10">
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <CategoryBadge category={announcement.category} />
+            <span class="text-sm text-text-muted">{formatDate(announcement.publishedAt)}</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-text">{announcement.title}</h1>
+          {announcement.excerpt && (
+            <p class="mt-4 text-lg text-text-muted max-w-2xl mx-auto">{announcement.excerpt}</p>
+          )}
+        </div>
+      </ScrollReveal>
+
+      {/* Cover Image */}
+      {announcement.coverImage && (
+        <ScrollReveal>
+          <div class="mb-10 rounded-2xl overflow-hidden shadow-xl">
+            <SanityImage
+              image={announcement.coverImage}
+              alt={announcement.title}
+              class="w-full"
+              maxWidth={1200}
+              loading="eager"
+            />
+          </div>
+        </ScrollReveal>
+      )}
+
+      {/* Content */}
+      <ScrollReveal>
+        <div class="prose-custom">
+          <RichText blocks={announcement.body} />
+        </div>
+      </ScrollReveal>
+
+      <!-- Back -->
+      <div class="mt-12 text-center">
+        <a
+          href="/announcements"
+          class="inline-flex items-center text-primary-600 font-medium text-sm hover:text-primary-700 transition-colors"
+        >
+          <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          返回公告列表
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

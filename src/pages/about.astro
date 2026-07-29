@@ -1,0 +1,121 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import TeacherCard from '@components/about/TeacherCard.astro';
+import CommitteeCard from '@components/about/CommitteeCard.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import { sanityClient } from 'sanity:client';
+import { TEACHERS_QUERY, COMMITTEE_QUERY } from '@sanity/queries';
+import { SITE } from '@lib/constants';
+
+const [teachers, committees] = await Promise.all([
+  sanityClient.fetch(TEACHERS_QUERY),
+  sanityClient.fetch(COMMITTEE_QUERY),
+]);
+
+// Group committees by term
+const committeesByTerm = (committees || []).reduce((acc: Record<string, any[]>, member: any) => {
+  const term = member.term || '其他';
+  if (!acc[term]) acc[term] = [];
+  acc[term].push(member);
+  return acc;
+}, {} as Record<string, any[]>);
+
+const sortedTerms = Object.keys(committeesByTerm).sort((a, b) => b.localeCompare(a));
+---
+
+<BaseLayout
+  title="關於我們"
+  description="了解科研學會的成立宗旨、顧問老師及理事名單"
+  canonical={`${SITE.url}/about`}
+>
+  <!-- Hero -->
+  <section class="py-16 lg:py-24 bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-slate-900 dark:via-slate-900 dark:to-secondary-950">
+    <div class="container-custom text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">關於我們</h1>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        科研學會致力於推動學術研究與科技創新，為學生提供探索科學的機會，培養研究精神與團隊合作能力。
+      </p>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="py-16 lg:py-24">
+    <div class="container-custom max-w-4xl">
+      <ScrollReveal>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="card p-8">
+            <div class="text-3xl mb-4" aria-hidden="true">🎯</div>
+            <h2 class="text-xl font-bold text-text mb-3">成立宗旨</h2>
+            <p class="text-text-muted leading-relaxed">
+              本學會旨在培養學生對科學研究的興趣，透過各類學術活動、比賽及工作坊，
+              提升學生的科學素養及研究能力，並建立一個互相學習、共同成長的平台。
+            </p>
+          </div>
+          <div class="card p-8">
+            <div class="text-3xl mb-4" aria-hidden="true">💡</div>
+            <h2 class="text-xl font-bold text-text mb-3">願景</h2>
+            <p class="text-text-muted leading-relaxed">
+              我們希望每位會員都能在科研學會中找到自己的興趣方向，
+              培養獨立思考與解決問題的能力，為未來的學術及職業發展奠定基礎。
+            </p>
+          </div>
+        </div>
+      </ScrollReveal>
+    </div>
+  </section>
+
+  <!-- Teachers -->
+  {teachers.length > 0 && (
+    <section class="py-16 lg:py-24 bg-bg-alt">
+      <div class="container-custom">
+        <ScrollReveal>
+          <div class="text-center mb-10">
+            <h2 class="text-3xl sm:text-4xl font-bold text-text">顧問老師</h2>
+            <p class="mt-2 text-text-muted">感謝各位老師的指導與支持</p>
+          </div>
+        </ScrollReveal>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto scroll-reveal-stagger">
+          {teachers.map((teacher: any) => (
+            <TeacherCard
+              name={teacher.name}
+              title={teacher.title}
+              photo={teacher.photo}
+              bio={teacher.bio}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Committees -->
+  {sortedTerms.length > 0 && (
+    <section class="py-16 lg:py-24">
+      <div class="container-custom">
+        <ScrollReveal>
+          <div class="text-center mb-10">
+            <h2 class="text-3xl sm:text-4xl font-bold text-text">理事名單</h2>
+            <p class="mt-2 text-text-muted">歷屆及現屆理事會成員</p>
+          </div>
+        </ScrollReveal>
+
+        {sortedTerms.map((term) => (
+          <div class="mb-12">
+            <h3 class="text-xl font-bold text-text mb-4 text-center">{term}</h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+              {(committeesByTerm[term] || []).map((member: any) => (
+                <CommitteeCard
+                  name={member.name}
+                  role={member.role}
+                  term={member.term}
+                  photo={member.photo}
+                  bio={member.bio}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>

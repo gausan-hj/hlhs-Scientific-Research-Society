@@ -1,0 +1,42 @@
+---
+import SanityImage from '../common/SanityImage.astro';
+import ScrollReveal from '../common/ScrollReveal.astro';
+import CategoryBadge from '../common/CategoryBadge.astro';
+import { formatDate } from '@lib/utils';
+
+interface Props {
+  slug: { current: string };
+  title: string;
+  publishedAt: string;
+  category: string;
+  coverImage?: any;
+  excerpt?: string;
+}
+
+const { slug, title, publishedAt, category, coverImage, excerpt } = Astro.props;
+---
+
+<a href={`/announcements/${slug.current}`} class="card group block">
+  {coverImage && (
+    <div class="img-zoom-container rounded-t-xl overflow-hidden">
+      <SanityImage
+        image={coverImage}
+        alt={title}
+        class="w-full aspect-video object-cover"
+        maxWidth={600}
+      />
+    </div>
+  )}
+  <div class="p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <CategoryBadge category={category} />
+      <span class="text-xs text-text-muted">{formatDate(publishedAt)}</span>
+    </div>
+    <h3 class="text-lg font-semibold text-text group-hover:text-primary-600 transition-colors line-clamp-2">
+      {title}
+    </h3>
+    {excerpt && (
+      <p class="mt-2 text-sm text-text-muted line-clamp-2">{excerpt}</p>
+    )}
+  </div>
+</a>

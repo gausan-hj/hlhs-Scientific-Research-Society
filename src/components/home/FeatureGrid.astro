@@ -1,0 +1,58 @@
+---
+import ScrollReveal from '../common/ScrollReveal.astro';
+
+interface Feature {
+  icon?: string;
+  title: string;
+  description?: string;
+}
+
+interface Props {
+  features: Feature[];
+}
+
+const { features } = Astro.props;
+
+// Simple SVG icon fallbacks based on icon name
+const iconMap: Record<string, string> = {
+  flask: '🔬',
+  users: '👥',
+  trophy: '🏆',
+  book: '📖',
+  star: '⭐',
+  lightbulb: '💡',
+  chart: '📊',
+  globe: '🌐',
+  rocket: '🚀',
+  heart: '❤️',
+  code: '💻',
+  brain: '🧠',
+};
+---
+
+<section class="py-16 lg:py-24">
+  <div class="container-custom">
+    <ScrollReveal>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-text">學會特色</h2>
+        <p class="mt-2 text-text-muted">為什麼加入科研學會？</p>
+      </div>
+    </ScrollReveal>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
+      {features.map((feat) => (
+        <ScrollReveal>
+          <div class="card p-6 text-center">
+            <div class="text-3xl mb-4" aria-hidden="true">
+              {iconMap[feat.icon || ''] || feat.icon || '✨'}
+            </div>
+            <h3 class="text-lg font-semibold text-text mb-2">{feat.title}</h3>
+            {feat.description && (
+              <p class="text-sm text-text-muted leading-relaxed">{feat.description}</p>
+            )}
+          </div>
+        </ScrollReveal>
+      ))}
+    </div>
+  </div>
+</section>

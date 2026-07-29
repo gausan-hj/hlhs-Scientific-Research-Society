@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SanityImage from '@components/common/SanityImage.astro';
+import RichText from '@components/common/RichText.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import { sanityClient } from 'sanity:client';
+import { ACTIVITY_BY_SLUG_QUERY, ACTIVITIES_QUERY } from '@sanity/queries';
+import { SITE, formatDate, blocksToText, siteUrl } from '@lib/utils';
+
+export async function getStaticPaths() {
+  const activities = await sanityClient.fetch(
+    `*[_type == "activity" && defined(slug.current)].slug.current`
+  );
+  return activities.map((slug: string) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const activity = await sanityClient.fetch(ACTIVITY_BY_SLUG_QUERY, { slug });
+
+if (!activity) {
+  return Astro.redirect('/activities');
+}
+
+const seoTitle = activity.seo?.metaTitle || activity.title;
+const seoDescription = activity.seo?.metaDescription || activity.excerpt || blocksToText(activity.body);
+const seoImage = activity.coverImage;
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  image={seoImage ? (activity.seo?.ogImage ? undefined : undefined) : undefined}
+  canonical={siteUrl(`/activities/${slug}`)}
+  type="article"
+  publishedAt={activity.date}
+>
+  <article class="py-16 lg:py-24">
+    <div class="container-custom max-w-4xl">
+      <!-- Header -->
+      <ScrollReveal>
+        <div class="text-center mb-10">
+          <div class="flex items-center justify-center gap-3 mb-4 text-sm text-text-muted">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            <span>{formatDate(activity.date)}</span>
+            {activity.endDate && <span> — {formatDate(activity.endDate)}</span>}
+            <span aria-hidden="true">·</span>
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            <span>{activity.location}</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-text">{activity.title}</h1>
+        </div>
+      </ScrollReveal>
+
+      {/* Cover Image */}
+      {activity.coverImage && (
+        <ScrollReveal>
+          <div class="mb-10 rounded-2xl overflow-hidden shadow-xl">
+            <SanityImage
+              image={activity.coverImage}
+              alt={activity.title}
+              class="w-full"
+              maxWidth={1200}
+              loading="eager"
+            />
+          </div>
+        </ScrollReveal>
+      )}
+
+      {/* Content */}
+      <ScrollReveal>
+        <div class="prose-custom">
+          <RichText blocks={activity.body} />
+        </div>
+      </ScrollReveal>
+
+      {/* Gallery */}
+      {activity.gallery?.length > 0 && (
+        <section class="mt-16">
+          <h2 class="text-2xl font-bold text-text mb-6">活動相冊</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {activity.gallery.map((img: any) => (
+              <div class="rounded-xl overflow-hidden shadow-md">
+                <SanityImage
+                  image={img}
+                  alt={img.alt || activity.title}
+                  class="w-full aspect-square object-cover"
+                  maxWidth={400}
+                />
+                {img.caption && (
+                  <p class="p-2 text-xs text-text-muted text-center">{img.caption}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Back -->
+      <div class="mt-12 text-center">
+        <a
+          href="/activities"
+          class="inline-flex items-center text-primary-600 font-medium text-sm hover:text-primary-700 transition-colors"
+        >
+          <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          返回活動列表
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

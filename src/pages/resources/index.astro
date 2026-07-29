@@ -1,0 +1,77 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ResourceCard from '@components/resources/ResourceCard.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import { sanityClient } from 'sanity:client';
+import { RESOURCES_QUERY } from '@sanity/queries';
+import { SITE } from '@lib/constants';
+
+const resources: any[] = await sanityClient.fetch(RESOURCES_QUERY);
+
+const typeOptions = [
+  { value: '', label: '全部' },
+  { value: 'pdf', label: 'PDF' },
+  { value: 'ppt', label: 'PPT' },
+  { value: 'video', label: '影片' },
+  { value: 'link', label: '連結' },
+  { value: 'external', label: '外部資源' },
+];
+
+const url = new URL(Astro.request.url);
+const activeType = url.searchParams.get('type') || '';
+
+const filtered = activeType
+  ? resources.filter((r: any) => r.type === activeType)
+  : resources;
+---
+
+<BaseLayout
+  title="資源"
+  description="下載科研學會的學習資源、簡報及參考資料"
+  canonical={`${SITE.url}/resources`}
+>
+  <section class="py-16 lg:py-24">
+    <div class="container-custom">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">資源</h1>
+        <p class="text-lg text-text-muted max-w-2xl mx-auto">
+          下載科研學會提供的學習資源，包括簡報、筆記、影片及外部連結。
+        </p>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
+        {typeOptions.map((opt) => {
+          const isActive = activeType === opt.value;
+          const href = opt.value
+            ? `/resources?type=${opt.value}`
+            : '/resources';
+          return (
+            <a
+              href={href}
+              class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-bg-alt text-text-muted hover:text-text hover:bg-bg-alt/80'
+              }`}
+            >
+              {opt.label}
+            </a>
+          );
+        })}
+      </div>
+
+      {filtered.length > 0 ? (
+        <div class="max-w-3xl mx-auto space-y-3 scroll-reveal-stagger">
+          {filtered.map((item: any) => (
+            <ScrollReveal>
+              <ResourceCard {...item} />
+            </ScrollReveal>
+          ))}
+        </div>
+      ) : (
+        <p class="text-center text-text-muted py-12">暫無資源</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>

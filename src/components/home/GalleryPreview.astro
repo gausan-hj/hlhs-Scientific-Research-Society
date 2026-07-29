@@ -1,0 +1,58 @@
+---
+import ScrollReveal from '../common/ScrollReveal.astro';
+import SanityImage from '../common/SanityImage.astro';
+
+interface GalleryImage {
+  _key?: string;
+  alt?: string;
+  caption?: string;
+  asset?: any;
+}
+
+interface Gallery {
+  _id: string;
+  title: string;
+  images?: GalleryImage[];
+}
+
+interface Props {
+  galleries: Gallery[];
+}
+
+const { galleries } = Astro.props;
+
+// Flatten first 6 images from all galleries
+const images = galleries.flatMap((g) =>
+  (g.images || []).map((img) => ({ ...img, galleryTitle: g.title })),
+).slice(0, 6);
+---
+
+<section class="py-16 lg:py-24 bg-bg-alt">
+  <div class="container-custom">
+    <ScrollReveal>
+      <div class="text-center mb-10">
+        <h2 class="text-3xl sm:text-4xl font-bold text-text">精選照片</h2>
+        <p class="mt-2 text-text-muted">記錄學會的精彩時刻</p>
+      </div>
+    </ScrollReveal>
+
+    {images.length > 0 ? (
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 scroll-reveal-stagger">
+        {images.map((img) => (
+          <ScrollReveal>
+            <div class="img-zoom-container rounded-xl overflow-hidden shadow-lg">
+              <SanityImage
+                image={img}
+                alt={img.alt || img.galleryTitle}
+                class="w-full aspect-square object-cover"
+                maxWidth={400}
+              />
+            </div>
+          </ScrollReveal>
+        ))}
+      </div>
+    ) : (
+      <p class="text-center text-text-muted py-12">暫無照片</p>
+    )}
+  </div>
+</section>

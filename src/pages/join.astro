@@ -1,0 +1,85 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import { SITE } from '@lib/constants';
+
+// TODO: Replace with actual Google Form URL
+const GOOGLE_FORM_URL = 'https://forms.google.com/your-form-url';
+---
+
+<BaseLayout
+  title="加入我們"
+  description="加入科研學會，一起探索科學的無限可能！"
+  canonical={`${SITE.url}/join`}
+>
+  <!-- Hero -->
+  <section class="py-16 lg:py-24 bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-slate-900 dark:via-slate-900 dark:to-secondary-950">
+    <div class="container-custom text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">加入我們</h1>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        歡迎加入科研學會，與志同道合的同學一起探索科學的奧秘！
+      </p>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <section class="py-16 lg:py-24">
+    <div class="container-custom max-w-4xl">
+      <ScrollReveal>
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="card p-8">
+            <div class="text-3xl mb-4" aria-hidden="true">🔬</div>
+            <h2 class="text-xl font-bold text-text mb-3">學會簡介</h2>
+            <p class="text-text-muted leading-relaxed">
+              科研學會是一個以學術研究及科技創新為核心的學生組織。
+              我們舉辦各類活動，包括學術講座、實驗工作坊、比賽培訓及參觀交流，
+              讓會員在課堂以外拓展視野，培養科學素養。
+            </p>
+          </div>
+          <div class="card p-8">
+            <div class="text-3xl mb-4" aria-hidden="true">🎯</div>
+            <h2 class="text-xl font-bold text-text mb-3">招募對象</h2>
+            <ul class="text-text-muted leading-relaxed space-y-2">
+              <li class="flex items-start gap-2">
+                <span class="text-primary-500 mt-1" aria-hidden="true">✓</span>
+                對科學研究感興趣的同學
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-primary-500 mt-1" aria-hidden="true">✓</span>
+                願意參與學會活動及比賽
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-primary-500 mt-1" aria-hidden="true">✓</span>
+                具備團隊合作精神
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-primary-500 mt-1" aria-hidden="true">✓</span>
+                對學習新知識有熱情
+              </li>
+            </ul>
+          </div>
+        </div>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-600 p-8 sm:p-12 text-center">
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">立即報名</h2>
+          <p class="text-primary-100 text-lg max-w-xl mx-auto mb-8">
+            點擊下方按鈕填寫 Google Form，我們會盡快與你聯絡！
+          </p>
+          <a
+            href={GOOGLE_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-8 py-3 rounded-xl bg-white text-primary-700 font-semibold text-sm hover:bg-primary-50 transition-colors shadow-lg"
+          >
+            填寫報名表
+            <svg class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </a>
+        </div>
+      </ScrollReveal>
+    </div>
+  </section>
+</BaseLayout>

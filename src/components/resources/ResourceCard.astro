@@ -1,0 +1,74 @@
+---
+import SanityImage from '../common/SanityImage.astro';
+
+interface Props {
+  title: string;
+  type: string;
+  description?: string;
+  file?: any;
+  externalUrl?: string;
+  coverImage?: any;
+}
+
+const { title, type, description, file, externalUrl, coverImage } = Astro.props;
+
+const typeMap: Record<string, { label: string; icon: string }> = {
+  pdf: { label: 'PDF', icon: '📄' },
+  ppt: { label: 'PPT', icon: '📊' },
+  link: { label: '連結', icon: '🔗' },
+  video: { label: '影片', icon: '🎬' },
+  external: { label: '外部資源', icon: '🌐' },
+};
+
+const t = typeMap[type] || { label: type, icon: '📁' };
+
+const href = (type === 'pdf' || type === 'ppt') && file?.asset?.url
+  ? file.asset.url
+  : externalUrl || '#';
+
+const isDownload = type === 'pdf' || type === 'ppt';
+---
+
+<a
+  href={href}
+  class="card group block"
+  target={isDownload ? '_blank' : '_blank'}
+  rel="noopener noreferrer"
+  {...(isDownload ? { download: '' } : {})}
+>
+  <div class="p-5">
+    <div class="flex items-start gap-4">
+      {coverImage ? (
+        <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+          <SanityImage image={coverImage} alt={title} class="w-full h-full object-cover" maxWidth={150} />
+        </div>
+      ) : (
+        <div class="w-16 h-16 rounded-lg bg-bg-alt flex items-center justify-center text-2xl shrink-0" aria-hidden="true">
+          {t.icon}
+        </div>
+      )}
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300">
+            {t.label}
+          </span>
+        </div>
+        <h3 class="font-semibold text-text group-hover:text-primary-600 transition-colors truncate">
+          {title}
+        </h3>
+        {description && (
+          <p class="mt-1 text-sm text-text-muted line-clamp-2">{description}</p>
+        )}
+      </div>
+      <div class="shrink-0 self-center">
+        <svg class="h-5 w-5 text-text-muted group-hover:text-primary-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+          {isDownload ? (
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          ) : (
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          )}
+        </svg>
+      </div>
+    </div>
+  </div>
+</a>

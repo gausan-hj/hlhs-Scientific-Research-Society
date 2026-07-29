@@ -1,0 +1,93 @@
+---
+import ScrollReveal from '../common/ScrollReveal.astro';
+import SanityImage from '../common/SanityImage.astro';
+import { formatDate } from '@lib/utils';
+
+interface Activity {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  date: string;
+  endDate?: string;
+  location: string;
+  coverImage?: any;
+  excerpt?: string;
+}
+
+interface Props {
+  activities: Activity[];
+}
+
+const { activities } = Astro.props;
+---
+
+<section class="py-16 lg:py-24">
+  <div class="container-custom">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <h2 class="text-3xl sm:text-4xl font-bold text-text">最新活動</h2>
+        <p class="mt-2 text-text-muted">瀏覽即將舉行的活動與工作坊</p>
+      </div>
+      <a
+        href="/activities"
+        class="hidden sm:inline-flex items-center text-primary-600 font-medium text-sm hover:text-primary-700 transition-colors"
+      >
+        查看全部
+        <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
+      {activities.map((item) => (
+        <a href={`/activities/${item.slug.current}`} class="card group block">
+          <ScrollReveal>
+            {item.coverImage && (
+              <div class="img-zoom-container rounded-t-xl overflow-hidden">
+                <SanityImage
+                  image={item.coverImage}
+                  alt={item.title}
+                  class="w-full aspect-video object-cover"
+                  maxWidth={600}
+                />
+              </div>
+            )}
+            <div class="p-5">
+              <div class="flex items-center gap-2 mb-3 text-xs text-text-muted">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                <span>{formatDate(item.date)}</span>
+                <span class="mx-1" aria-hidden="true">·</span>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+                <span>{item.location}</span>
+              </div>
+              <h3 class="text-lg font-semibold text-text group-hover:text-primary-600 transition-colors line-clamp-2">
+                {item.title}
+              </h3>
+              {item.excerpt && (
+                <p class="mt-2 text-sm text-text-muted line-clamp-2">{item.excerpt}</p>
+              )}
+            </div>
+          </ScrollReveal>
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-8 text-center sm:hidden">
+      <a
+        href="/activities"
+        class="inline-flex items-center text-primary-600 font-medium text-sm"
+      >
+        查看全部活動
+        <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

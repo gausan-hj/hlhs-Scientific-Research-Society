@@ -1,0 +1,53 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ActivityCard from '@components/activities/ActivityCard.astro';
+import Pagination from '@components/common/Pagination.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import { sanityClient } from 'sanity:client';
+import { ACTIVITIES_QUERY, ACTIVITIES_COUNT_QUERY } from '@sanity/queries';
+import { SITE, ITEMS_PER_PAGE } from '@lib/constants';
+
+const url = new URL(Astro.request.url);
+const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
+const start = (page - 1) * ITEMS_PER_PAGE;
+const end = start + ITEMS_PER_PAGE;
+
+const [activities, total] = await Promise.all([
+  sanityClient.fetch(ACTIVITIES_QUERY, { start, end }),
+  sanityClient.fetch(ACTIVITIES_COUNT_QUERY),
+]);
+
+const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+---
+
+<BaseLayout
+  title="活動"
+  description="瀏覽科研學會的最新活動、工作坊及比賽資訊"
+  canonical={`${SITE.url}/activities`}
+>
+  <section class="py-16 lg:py-24">
+    <div class="container-custom">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">活動</h1>
+        <p class="text-lg text-text-muted max-w-2xl mx-auto">
+          瀏覽科研學會舉辦的各類活動，從學術講座到實驗工作坊，應有盡有。
+        </p>
+      </div>
+
+      {activities.length > 0 ? (
+        <>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
+            {activities.map((item: any) => (
+              <ScrollReveal>
+                <ActivityCard {...item} />
+              </ScrollReveal>
+            ))}
+          </div>
+          <Pagination currentPage={page} totalPages={totalPages} baseUrl="/activities" />
+        </>
+      ) : (
+        <p class="text-center text-text-muted py-12">暫無活動</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>

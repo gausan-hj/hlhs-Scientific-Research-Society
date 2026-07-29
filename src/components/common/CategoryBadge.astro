@@ -1,0 +1,29 @@
+---
+const categories: Record<string, string> = {
+  general: '一般公告',
+  event: '活動消息',
+  competition: '比賽資訊',
+  academic: '學術分享',
+  other: '其他',
+};
+
+const colors: Record<string, string> = {
+  general: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  event: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
+  competition: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300',
+  academic: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+  other: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+};
+
+interface Props {
+  category: string;
+}
+
+const { category } = Astro.props;
+const label = categories[category] || category;
+const colorClass = colors[category] || colors.other;
+---
+
+<span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+  {label}
+</span>

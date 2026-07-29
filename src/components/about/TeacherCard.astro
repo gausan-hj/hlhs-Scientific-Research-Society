@@ -1,0 +1,28 @@
+---
+import SanityImage from '../common/SanityImage.astro';
+import ScrollReveal from '../common/ScrollReveal.astro';
+
+interface Props {
+  name: string;
+  title: string;
+  photo?: any;
+  bio?: string;
+}
+
+const { name, title, photo, bio } = Astro.props;
+---
+
+<div class="card p-6 text-center">
+  {photo ? (
+    <div class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden">
+      <SanityImage image={photo} alt={name} class="w-full h-full object-cover" maxWidth={200} />
+    </div>
+  ) : (
+    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+      <span class="text-2xl font-bold text-primary-600">{name[0]}</span>
+    </div>
+  )}
+  <h3 class="text-lg font-semibold text-text">{name}</h3>
+  <p class="text-sm text-primary-600 font-medium">{title}</p>
+  {bio && <p class="mt-2 text-sm text-text-muted line-clamp-3">{bio}</p>}
+</div>

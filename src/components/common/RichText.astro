@@ -1,0 +1,93 @@
+---
+import SanityImage from './SanityImage.astro';
+
+interface Props {
+  blocks?: any[];
+}
+
+const { blocks = [] } = Astro.props;
+
+function isMarked(child: any, mark: string): boolean {
+  if (typeof mark === 'string') return child?.marks?.includes(mark);
+  if (typeof mark === 'object' && mark._type === 'link') {
+    return child?.marks?.some(
+      (m: any) => typeof m === 'object' && m._type === 'link' && m.href === mark.href
+    );
+  }
+  return false;
+}
+
+function getLinkMark(marks: any[]) {
+  return marks?.find((m: any) => typeof m === 'object' && m._type === 'link');
+}
+---
+
+<div class="rich-text">
+  {blocks.map((block: any) => {
+    // Image
+    if (block._type === 'image') {
+      const { alt = '', caption, ...rest } = block;
+      return (
+        <figure class="my-6">
+          <SanityImage image={rest} alt={alt} class="rounded-xl w-full" />
+          {caption && <figcaption class="mt-2 text-center text-sm text-text-muted">{caption}</figcaption>}
+        </figure>
+      );
+    }
+
+    const { style, children = [], level = 0, listItem } = block;
+
+    // Build content inline
+    const content = children.map((child: any) => {
+      if (child._type !== 'span' || !child.text) return null;
+      const link = getLinkMark(child.marks || []);
+      const hasStrong = isMarked(child, 'strong');
+      const hasEm = isMarked(child, 'em');
+      const hasUnderline = isMarked(child, 'underline');
+      const hasStrike = isMarked(child, 'strike-through');
+
+      let inner = <>{child.text}</>;
+      if (hasStrike) inner = <s>{inner}</s>;
+      if (hasUnderline) inner = <u>{inner}</u>;
+      if (hasEm) inner = <em>{inner}</em>;
+      if (hasStrong) inner = <strong class="font-semibold text-text">{inner}</strong>;
+      if (link) {
+        inner = (
+          <a
+            href={link.href}
+            class="text-primary-500 underline underline-offset-2 hover:text-primary-600 transition-colors"
+            target={link.blank ? '_blank' : undefined}
+            rel={link.blank ? 'noopener noreferrer' : undefined}
+          >
+            {inner}
+          </a>
+        );
+      }
+      return inner;
+    });
+
+    // List items
+    if (listItem === 'bullet') {
+      const marginClass = level > 0 ? `ml-${(level + 1) * 4}` : '';
+      return <li class={`mb-1 text-text-muted ${marginClass}`}>{content}</li>;
+    }
+    if (listItem === 'number') {
+      const marginClass = level > 0 ? `ml-${(level + 1) * 4}` : '';
+      return <li class={`mb-1 text-text-muted ${marginClass}`}>{content}</li>;
+    }
+
+    // Block styling
+    switch (style) {
+      case 'h2':
+        return <h2 class="text-2xl font-bold mt-8 mb-4 text-text">{content}</h2>;
+      case 'h3':
+        return <h3 class="text-xl font-semibold mt-6 mb-3 text-text">{content}</h3>;
+      case 'h4':
+        return <h4 class="text-lg font-medium mt-4 mb-2 text-text">{content}</h4>;
+      case 'blockquote':
+        return <blockquote class="border-l-4 border-primary-400 pl-4 my-4 italic text-text-muted">{content}</blockquote>;
+      default:
+        return <p class="mb-4 leading-relaxed text-text-muted">{content}</p>;
+    }
+  })}
+</div>

@@ -1,0 +1,48 @@
+---
+import { SITE } from '@lib/constants';
+---
+
+<footer class="border-t border-border bg-bg-alt" role="contentinfo">
+  <div class="container-custom py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Site Info -->
+      <div>
+        <a href="/" class="flex items-center gap-2 text-lg font-bold text-text mb-3">
+          <span class="w-8 h-8 bg-primary-600 text-white rounded-lg flex items-center justify-center text-sm font-bold" aria-hidden="true">
+            科
+          </span>
+          {SITE.name}
+        </a>
+        <p class="text-sm text-text-muted leading-relaxed">
+          {SITE.description}
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h3 class="text-sm font-semibold text-text mb-3">快速連結</h3>
+        <ul class="space-y-2">
+          <li><a href="/about" class="text-sm text-text-muted hover:text-primary-600 transition-colors">關於我們</a></li>
+          <li><a href="/activities" class="text-sm text-text-muted hover:text-primary-600 transition-colors">最新活動</a></li>
+          <li><a href="/announcements" class="text-sm text-text-muted hover:text-primary-600 transition-colors">最新公告</a></li>
+          <li><a href="/resources" class="text-sm text-text-muted hover:text-primary-600 transition-colors">學習資源</a></li>
+          <li><a href="/join" class="text-sm text-text-muted hover:text-primary-600 transition-colors">加入我們</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div>
+        <h3 class="text-sm font-semibold text-text mb-3">聯絡我們</h3>
+        <p class="text-sm text-text-muted leading-relaxed">
+          如有任何查詢，歡迎聯絡科研學會負責老師或幹事。
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-8 pt-8 border-t border-border text-center">
+      <p class="text-xs text-text-muted">
+        &copy; {new Date().getFullYear()} {SITE.name}。版權所有。
+      </p>
+    </div>
+  </div>
+</footer>
