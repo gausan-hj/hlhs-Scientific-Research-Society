@@ -3,6 +3,13 @@ import { NAV_LINKS, SITE } from '@lib/constants';
 import ThemeToggle from './ThemeToggle.astro';
 
 const currentPath = Astro.url.pathname;
+
+// Find active index for the sliding pill
+function getActiveIndex(path: string): number {
+  if (path === '/') return 0;
+  return NAV_LINKS.findIndex((link) => link.href !== '/' && path.startsWith(link.href));
+}
+const activeIndex = getActiveIndex(currentPath);
 ---
 
 <header class="sticky top-0 z-50 bg-bg/80 backdrop-blur-lg border-b border-border" role="banner">
@@ -11,7 +18,7 @@ const currentPath = Astro.url.pathname;
       <!-- Logo -->
       <a
         href="/"
-        class="flex items-center gap-2 text-lg font-bold text-text hover:text-primary-600 transition-colors"
+        class="flex items-center gap-2 text-lg font-bold text-text hover:text-primary-600 transition-colors shrink-0"
         aria-label={`${SITE.name} — 回到首頁`}
       >
         <span class="w-8 h-8 bg-primary-600 text-white rounded-lg flex items-center justify-center text-sm font-bold" aria-hidden="true">
@@ -20,29 +27,37 @@ const currentPath = Astro.url.pathname;
         <span class="hidden sm:inline">{SITE.name}</span>
       </a>
 
-      <!-- Desktop Nav -->
-      <ul class="hidden md:flex items-center gap-1" role="menubar">
-        {NAV_LINKS.map((link) => {
-          const isActive = currentPath === link.href ||
-            (link.href !== '/' && currentPath.startsWith(link.href));
-          return (
-            <li role="none">
-              <a
-                href={link.href}
-                role="menuitem"
-                class={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  isActive
-                    ? 'text-primary-600 bg-primary-50 dark:bg-primary-950/50'
-                    : 'text-text-muted hover:text-text hover:bg-bg-alt'
-                }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
+      <!-- Desktop Nav with sliding pill -->
+      <div class="hidden md:block relative">
+        <ul class="relative flex items-center gap-1" role="menubar" id="nav-list">
+          {NAV_LINKS.map((link, i) => {
+            const isActive = i === activeIndex;
+            return (
+              <li role="none">
+                <a
+                  href={link.href}
+                  role="menuitem"
+                  class={`nav-link relative z-10 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
+                    isActive
+                      ? 'text-primary-600'
+                      : 'text-text-muted hover:text-text'
+                  }`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+        <!-- Sliding pill background -->
+        <div
+          id="nav-pill"
+          class="absolute top-0 z-0 h-full rounded-lg bg-primary-50 dark:bg-primary-950/50 transition-all duration-300 ease-out"
+          style={`left: ${activeIndex * 80}px; width: 80px;`}
+        >
+        </div>
+      </div>
 
       <!-- Right side: theme toggle + mobile menu button -->
       <div class="flex items-center gap-2">
@@ -116,6 +131,42 @@ const currentPath = Astro.url.pathname;
     });
   }
 
+  function initNavPill() {
+    const links = document.querySelectorAll('#nav-list .nav-link');
+    const pill = document.getElementById('nav-pill');
+    if (!links.length || !pill) return;
+
+    function movePill(el: Element) {
+      const rect = el.getBoundingClientRect();
+      const parentRect = (el.parentElement?.parentElement)?.getBoundingClientRect();
+      if (!parentRect) return;
+      pill.style.left = `${rect.left - parentRect.left}px`;
+      pill.style.width = `${rect.width}px`;
+    }
+
+    // Set initial position on the active link
+    links.forEach((link) => {
+      if (link.getAttribute('aria-current') === 'page') {
+        movePill(link);
+      }
+
+      link.addEventListener('mouseenter', () => movePill(link));
+
+      link.addEventListener('mouseleave', () => {
+        // Move back to active link
+        links.forEach((l) => {
+          if (l.getAttribute('aria-current') === 'page') {
+            movePill(l);
+          }
+        });
+      });
+    });
+  }
+
   initMobileMenu();
-  document.addEventListener('astro:after-swap', initMobileMenu);
+  initNavPill();
+  document.addEventListener('astro:after-swap', () => {
+    initMobileMenu();
+    initNavPill();
+  });
 </script>

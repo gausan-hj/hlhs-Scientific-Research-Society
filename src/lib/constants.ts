@@ -14,7 +14,6 @@ export const NAV_LINKS = [
   { href: '/activities', label: '活動', labelEn: 'Activities' },
   { href: '/announcements', label: '公告', labelEn: 'Announcements' },
   { href: '/resources', label: '資源', labelEn: 'Resources' },
-  { href: '/join', label: '加入我們', labelEn: 'Join Us' },
 ] as const;
 
 export const ITEMS_PER_PAGE = 9;
