@@ -7,7 +7,7 @@ import { structure } from './structure';
 export default defineConfig({
   name: 'research-society',
   title: '科研學會 CMS',
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'zbnhj067',
   dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
   plugins: [
     structureTool({ structure }),

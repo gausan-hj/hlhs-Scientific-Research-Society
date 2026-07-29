@@ -15,6 +15,7 @@ export default defineConfig({
       dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
       apiVersion: '2026-03-01',
       useCdn: false,
+      perspective: 'published',
       studioBasePath: '/admin',
     }),
   ],
