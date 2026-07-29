@@ -23,373 +23,377 @@ const [homepage, announcements, activities, galleries] = await Promise.all([
 ]);
 
 const showPlaceholder = !homepage;
+const siteContent = showPlaceholder ? (
+  `<section class="py-32 text-center">
+    <h1 class="text-4xl font-bold mb-4" style="color:var(--color-text)">科研學會</h1>
+    <p class="text-lg mb-8" style="color:var(--color-text-muted)">歡迎來到科研學會官方網站。請先登入 Sanity Studio 設定首頁內容。</p>
+    <a href="/admin" class="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white font-medium">前往後台管理</a>
+  </section>`
+) : '';
 ---
 
 <!doctype html>
 <html lang="zh-HK">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <title>科研學會</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <title>科研學會</title>
+  <meta name="description" content="科研學會官方網站 — 致力於推動學術研究與科技創新" />
+  <meta property="og:title" content="科研學會 — Research Society" />
+  <meta property="og:description" content="科研學會官方網站 — 致力於推動學術研究與科技創新" />
+  <meta property="og:type" content="website" />
 
-    <!-- SEO (inline for splash page) -->
-    <meta name="description" content="科研學會官方網站 — 致力於推動學術研究與科技創新" />
-    <meta property="og:title" content="科研學會 — Research Society" />
-    <meta property="og:description" content="科研學會官方網站 — 致力於推動學術研究與科技創新" />
-    <meta property="og:type" content="website" />
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#081C2F;font-family:'Inter','Noto Sans SC','Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}
 
-    <style>
-      *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-      html,body{width:100%;height:100%;overflow:hidden;background:#081C2F;font-family:'Inter','Noto Sans SC','Segoe UI','PingFang SC','Microsoft YaHei',sans-serif}
+    #splash-overlay{position:fixed;inset:0;z-index:99999;background:#081C2F;display:flex;justify-content:center;align-items:center}
+    #splash-overlay.fade-out{opacity:0;pointer-events:none;transition:opacity .8s ease}
+    #splash-overlay.removed{display:none}
 
-      #splash{position:fixed;inset:0;z-index:9999;background:#081C2F;display:flex;justify-content:center;align-items:center;transition:opacity .8s ease,transform .8s ease}
-      #splash.hide{opacity:0;transform:scale(1.1);pointer-events:none}
-      #splash.done{display:none}
+    #scene-wrapper{width:100%;height:100%;display:flex;justify-content:center;align-items:center}
+    #scene-container{position:relative;width:100%;max-width:1100px;aspect-ratio:1000/650}
+    #main-svg{position:absolute;top:0;left:0;width:100%;height:100%;display:block}
+    #smoke-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5}
 
-      #main-site{opacity:0;transition:opacity .6s ease}
-      #main-site.visible{opacity:1}
+    #logo-overlay{position:absolute;inset:0;z-index:100;opacity:0;pointer-events:none;display:flex;justify-content:center;align-items:center}
+    #logo-img{display:block;max-width:min(540px,85vw);height:auto;opacity:0;transform:scale(.8);filter:blur(20px) brightness(1.3)}
+    #logo-glow{position:absolute;pointer-events:none;z-index:-1;width:520px;height:260px;max-width:85vw;max-height:45vw;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(0,168,255,.5) 0%,rgba(0,140,255,.18) 35%,transparent 70%);opacity:0}
 
-      #scene-wrapper{width:100%;height:100%;display:flex;justify-content:center;align-items:center}
-      #scene-container{position:relative;width:100%;max-width:1100px;aspect-ratio:1000/650}
-      #main-svg{position:absolute;top:0;left:0;width:100%;height:100%;display:block}
-      #smoke-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;background:transparent}
+    #skip-btn{position:fixed;bottom:24px;right:24px;z-index:100000;padding:8px 18px;border-radius:9999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);font-size:13px;cursor:pointer;backdrop-filter:blur(8px);transition:all .3s;opacity:0;animation:fade-in .6s 1.5s forwards}
+    #skip-btn:hover{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.4)}
+    @keyframes fade-in{to{opacity:1}}
+    @media(max-width:768px){#logo-img{max-width:min(280px,70vw)}#logo-glow{width:300px;height:140px}}
+  </style>
+</head>
+<body>
 
-      #logo-container{position:absolute;inset:0;z-index:100;opacity:0;pointer-events:none;display:flex;justify-content:center;align-items:center}
-      #logo-img{display:block;max-width:min(540px,85vw);height:auto;opacity:0;transform:scale(.8);filter:blur(20px) brightness(1.3)}
-      #logo-glow{position:absolute;pointer-events:none;z-index:-1;width:520px;height:260px;max-width:85vw;max-height:45vw;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(0,168,255,.5) 0%,rgba(0,140,255,.18) 35%,transparent 70%);opacity:0}
-
-      #skip-btn{position:fixed;bottom:24px;right:24px;z-index:10000;padding:8px 18px;border-radius:9999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-size:13px;cursor:pointer;backdrop-filter:blur(8px);transition:all .3s;opacity:0;animation:fadeInBtn .6s 1.5s forwards}
-      #skip-btn:hover{background:rgba(255,255,255,.14);color:rgba(255,255,255,.95);border-color:rgba(255,255,255,.35)}
-      @keyframes fadeInBtn{to{opacity:1}}
-      @media(max-width:768px){#logo-img{max-width:min(280px,70vw)}#logo-glow{width:300px;height:140px}}
-    </style>
-
-    <style is:global>
-      @import '@fontsource/inter/400.css';
-      @import '@fontsource/inter/500.css';
-      @import '@fontsource/inter/600.css';
-      @import '@fontsource/inter/700.css';
-      @import '@fontsource/noto-sans-sc/400.css';
-      @import '@fontsource/noto-sans-sc/500.css';
-      @import '@fontsource/noto-sans-sc/700.css';
-      @import '../styles/global.css';
-    </style>
-  </head>
-  <body>
-    <!-- ===== SPLASH SCREEN ===== -->
-    <div id="splash">
-      <div id="scene-wrapper">
-        <div id="scene-container">
-          <svg id="main-svg" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
-              <filter id="glow-strong" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-              <filter id="glow-liquid" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-              <filter id="soft-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="22"/></filter>
-              <linearGradient id="glass-body" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,.16)"/><stop offset="15%" stop-color="rgba(255,255,255,.05)"/><stop offset="50%" stop-color="rgba(255,255,255,.01)"/><stop offset="85%" stop-color="rgba(255,255,255,.06)"/><stop offset="100%" stop-color="rgba(255,255,255,.12)"/></linearGradient>
-              <linearGradient id="ambient-glow" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="rgba(0,168,255,.14)"/><stop offset="50%" stop-color="rgba(0,168,255,.04)"/><stop offset="100%" stop-color="rgba(0,168,255,.16)"/></linearGradient>
-              <linearGradient id="liquid-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,210,255,.45)"/><stop offset="30%" stop-color="rgba(0,185,255,.68)"/><stop offset="100%" stop-color="rgba(0,105,225,.88)"/></linearGradient>
-              <clipPath id="flask-inner-clip"><path d="M474 170 L474 248 Q474 268 445 288 Q380 440 350 540 Q347 546 355 548 L645 548 Q653 546 650 540 Q620 440 555 288 Q526 268 526 248 L526 170 Z"/></clipPath>
-              <clipPath id="tube-inner-clip"><rect x="1" y="2" width="22" height="178" rx="10"/></clipPath>
-            </defs>
-            <ellipse cx="500" cy="380" rx="320" ry="220" fill="url(#ambient-glow)" opacity=".5"/>
-            <ellipse cx="500" cy="555" rx="175" ry="14" fill="rgba(0,168,255,.08)" filter="url(#glow-blue)"/>
-            <g id="bg-particles" opacity="0">
-              <circle cx="200" cy="150" r="1.5" fill="rgba(0,185,255,.6)"/><circle cx="820" cy="130" r="1.2" fill="rgba(0,185,255,.5)"/>
-              <circle cx="140" cy="420" r="1" fill="rgba(0,185,255,.4)"/><circle cx="860" cy="440" r="1.6" fill="rgba(0,185,255,.55)"/>
-              <circle cx="280" cy="80" r="1" fill="rgba(0,185,255,.45)"/><circle cx="740" cy="560" r="1.3" fill="rgba(0,185,255,.5)"/>
-              <circle cx="650" cy="80" r=".9" fill="rgba(0,185,255,.4)"/><circle cx="350" cy="580" r="1.1" fill="rgba(0,185,255,.45)"/>
-            </g>
-            <g id="flask-group">
-              <path id="flask-back" d="M462 140 L462 248 Q462 268 430 290 Q355 440 340 545 Q338 552 348 554 L652 554 Q662 552 660 545 Q645 440 570 290 Q538 268 538 248 L538 140 Z" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.18)" stroke-width="1.2"/>
-              <g id="liquid-group" opacity="0">
-                <rect id="liquid-rect" x="340" y="545" width="320" height="0" fill="url(#liquid-grad)" clip-path="url(#flask-inner-clip)"/>
-                <ellipse id="liquid-surface" cx="500" cy="545" rx="155" ry="8" fill="rgba(255,255,255,.15)"/>
-              </g>
-              <g id="bubbles-group" clip-path="url(#flask-inner-clip)"></g>
-              <g id="inner-particles-group" clip-path="url(#flask-inner-clip)"></g>
-              <g id="electric-arcs-group" clip-path="url(#flask-inner-clip)"></g>
-              <path id="flask-front" d="M462 140 L462 248 Q462 268 430 290 Q355 440 340 545 Q338 552 348 554 L652 554 Q662 552 660 545 Q645 440 570 290 Q538 268 538 248 L538 140 Z" fill="url(#glass-body)" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
-              <rect id="flask-rim" x="454" y="135" width="92" height="8" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
-              <rect x="456" y="143" width="88" height="3" rx="1" fill="rgba(255,255,255,.06)"/>
-              <path id="flask-hl-left" d="M466 148 L466 250 Q466 264 440 284 Q370 432 354 535" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3"/>
-              <path d="M470 148 L470 252 Q470 262 448 280 Q380 427 365 530" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>
-              <path d="M534 148 L534 252 Q534 262 552 282 Q620 427 635 530" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="4"/>
-              <path d="M400 400 Q450 420 500 420 Q550 420 600 400" fill="none" stroke="rgba(0,168,255,.12)" stroke-width="22" filter="url(#glow-blue)"/>
-            </g>
-            <ellipse id="flask-glow-core" cx="500" cy="380" rx="80" ry="100" fill="rgba(0,180,255,0)" filter="url(#soft-glow)"/>
-            <g transform="translate(575,-10)"><g id="tube-group" style="transform-origin:12px 95px">
-              <rect id="tube-liquid" x="1" y="68" width="22" height="110" fill="rgba(0,185,255,.75)" clip-path="url(#tube-inner-clip)" filter="url(#glow-liquid)"/>
-              <rect x="0" y="0" width="24" height="190" rx="12" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.16)" stroke-width="1.5"/>
-              <rect x="0" y="0" width="24" height="190" rx="12" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
-              <rect x="3" y="5" width="4" height="180" rx="2" fill="rgba(255,255,255,.22)"/>
-              <rect x="20" y="8" width="1.5" height="172" rx="1" fill="rgba(255,255,255,.06)"/>
-              <rect x="-4" y="-4" width="32" height="6" rx="1.5" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-              <ellipse cx="12" cy="187" rx="10" ry="3" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
-            </g></g>
-            <line id="liquid-stream-glow-outer" x1="488" y1="85" x2="500" y2="140" stroke="rgba(0,210,255,.2)" stroke-width="30" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#soft-glow)" opacity="0"/>
-            <line id="liquid-stream-glow" x1="488" y1="85" x2="500" y2="140" stroke="rgba(80,210,255,.38)" stroke-width="16" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#glow-blue)" opacity="0"/>
-            <line id="liquid-stream-core" x1="488" y1="85" x2="500" y2="140" stroke="rgba(180,235,255,.9)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#glow-liquid)" opacity="0"/>
-            <line id="liquid-stream" x1="488" y1="85" x2="500" y2="140" stroke="rgba(0,195,255,.9)" stroke-width="5" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#glow-liquid)" opacity="0"/>
-            <g id="stream-droplets"></g>
-            <ellipse id="smoke-hint" cx="500" cy="145" rx="18" ry="7" fill="rgba(255,255,255,0)" filter="url(#soft-glow)"/>
-          </svg>
-          <canvas id="smoke-canvas"></canvas>
-          <div id="logo-container"><img id="logo-img" src="/logo.png" alt="科研學會" /><div id="logo-glow"></div></div>
-        </div>
+  <div id="splash-overlay">
+    <div id="scene-wrapper">
+      <div id="scene-container">
+        <svg id="main-svg" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+            <filter id="glow-strong2" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow-liquid" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="soft-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="22"/></filter>
+            <linearGradient id="glass-body" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,.16)"/><stop offset="15%" stop-color="rgba(255,255,255,.05)"/><stop offset="50%" stop-color="rgba(255,255,255,.01)"/><stop offset="85%" stop-color="rgba(255,255,255,.06)"/><stop offset="100%" stop-color="rgba(255,255,255,.12)"/></linearGradient>
+            <linearGradient id="ambient-glow" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="rgba(0,168,255,.14)"/><stop offset="50%" stop-color="rgba(0,168,255,.04)"/><stop offset="100%" stop-color="rgba(0,168,255,.16)"/></linearGradient>
+            <linearGradient id="liquid-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,210,255,.45)"/><stop offset="30%" stop-color="rgba(0,185,255,.68)"/><stop offset="100%" stop-color="rgba(0,105,225,.88)"/></linearGradient>
+            <clipPath id="flask-inner-clip"><path d="M474 170 L474 248 Q474 268 445 288 Q380 440 350 540 Q347 546 355 548 L645 548 Q653 546 650 540 Q620 440 555 288 Q526 268 526 248 L526 170 Z"/></clipPath>
+            <clipPath id="tube-inner-clip"><rect x="1" y="2" width="22" height="178" rx="10"/></clipPath>
+          </defs>
+          <ellipse cx="500" cy="380" rx="320" ry="220" fill="url(#ambient-glow)" opacity=".5"/>
+          <ellipse cx="500" cy="555" rx="175" ry="14" fill="rgba(0,168,255,.08)" filter="url(#glow-blue)"/>
+          <g id="bg-particles" opacity="0">
+            <circle cx="200" cy="150" r="1.5" fill="rgba(0,185,255,.6)"/><circle cx="820" cy="130" r="1.2" fill="rgba(0,185,255,.5)"/>
+            <circle cx="140" cy="420" r="1" fill="rgba(0,185,255,.4)"/><circle cx="860" cy="440" r="1.6" fill="rgba(0,185,255,.55)"/>
+            <circle cx="280" cy="80" r="1" fill="rgba(0,185,255,.45)"/><circle cx="740" cy="560" r="1.3" fill="rgba(0,185,255,.5)"/>
+            <circle cx="650" cy="80" r=".9" fill="rgba(0,185,255,.4)"/><circle cx="350" cy="580" r="1.1" fill="rgba(0,185,255,.45)"/>
+          </g>
+          <g id="flask-group">
+            <path id="flask-back" d="M462 140 L462 248 Q462 268 430 290 Q355 440 340 545 Q338 552 348 554 L652 554 Q662 552 660 545 Q645 440 570 290 Q538 268 538 248 L538 140 Z" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.18)" stroke-width="1.2"/>
+            <g id="liquid-group" opacity="0"><rect id="liquid-rect" x="340" y="545" width="320" height="0" fill="url(#liquid-grad)" clip-path="url(#flask-inner-clip)"/><ellipse id="liquid-surface" cx="500" cy="545" rx="155" ry="8" fill="rgba(255,255,255,.15)"/></g>
+            <g id="bubbles-group" clip-path="url(#flask-inner-clip)"></g><g id="inner-particles-group" clip-path="url(#flask-inner-clip)"></g><g id="electric-arcs-group" clip-path="url(#flask-inner-clip)"></g>
+            <path id="flask-front" d="M462 140 L462 248 Q462 268 430 290 Q355 440 340 545 Q338 552 348 554 L652 554 Q662 552 660 545 Q645 440 570 290 Q538 268 538 248 L538 140 Z" fill="url(#glass-body)" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+            <rect id="flask-rim" x="454" y="135" width="92" height="8" rx="2" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+            <rect x="456" y="143" width="88" height="3" rx="1" fill="rgba(255,255,255,.06)"/>
+            <path id="flask-hl-left" d="M466 148 L466 250 Q466 264 440 284 Q370 432 354 535" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3"/>
+            <path d="M470 148 L470 252 Q470 262 448 280 Q380 427 365 530" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>
+            <path d="M534 148 L534 252 Q534 262 552 282 Q620 427 635 530" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="4"/>
+            <path d="M400 400 Q450 420 500 420 Q550 420 600 400" fill="none" stroke="rgba(0,168,255,.12)" stroke-width="22" filter="url(#glow-blue)"/>
+          </g>
+          <ellipse id="flask-glow-core" cx="500" cy="380" rx="80" ry="100" fill="rgba(0,180,255,0)" filter="url(#soft-glow)"/>
+          <g transform="translate(575,-10)"><g id="tube-group" style="transform-origin:12px 95px">
+            <rect id="tube-liquid" x="1" y="68" width="22" height="110" fill="rgba(0,185,255,.75)" clip-path="url(#tube-inner-clip)" filter="url(#glow-liquid)"/>
+            <rect x="0" y="0" width="24" height="190" rx="12" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.16)" stroke-width="1.5"/>
+            <rect x="0" y="0" width="24" height="190" rx="12" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+            <rect x="3" y="5" width="4" height="180" rx="2" fill="rgba(255,255,255,.22)"/>
+            <rect x="20" y="8" width="1.5" height="172" rx="1" fill="rgba(255,255,255,.06)"/>
+            <rect x="-4" y="-4" width="32" height="6" rx="1.5" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+            <ellipse cx="12" cy="187" rx="10" ry="3" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+          </g></g>
+          <line id="liquid-stream-glow-outer" x1="488" y1="85" x2="500" y2="140" stroke="rgba(0,210,255,.2)" stroke-width="30" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#soft-glow)" opacity="0"/>
+          <line id="liquid-stream-glow" x1="488" y1="85" x2="500" y2="140" stroke="rgba(80,210,255,.38)" stroke-width="16" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#glow-blue)" opacity="0"/>
+          <line id="liquid-stream-core" x1="488" y1="85" x2="500" y2="140" stroke="rgba(180,235,255,.9)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#glow-liquid)" opacity="0"/>
+          <line id="liquid-stream" x1="488" y1="85" x2="500" y2="140" stroke="rgba(0,195,255,.9)" stroke-width="5" stroke-linecap="round" stroke-dasharray="65" stroke-dashoffset="65" filter="url(#glow-liquid)" opacity="0"/>
+          <g id="stream-droplets"></g>
+          <ellipse id="smoke-hint" cx="500" cy="145" rx="18" ry="7" fill="rgba(255,255,255,0)" filter="url(#soft-glow)"/>
+        </svg>
+        <canvas id="smoke-canvas"></canvas>
+        <div id="logo-overlay"><img id="logo-img" src="/logo.png" alt="科研學會" /><div id="logo-glow"></div></div>
       </div>
     </div>
-    <button id="skip-btn" onclick="skipSplash()">跳過動畫 →</button>
+  </div>
 
-    <!-- ===== MAIN SITE ===== -->
-    <div id="main-site">
-      <BaseLayout>
-        {showPlaceholder ? (
-          <section class="py-32 text-center">
-            <h1 class="text-4xl font-bold text-text mb-4">科研學會</h1>
-            <p class="text-lg text-text-muted mb-8 max-w-lg mx-auto">
-              歡迎來到科研學會官方網站。請先登入 Sanity Studio 設定首頁內容。
-            </p>
-            <a href="/admin" class="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white font-medium text-sm hover:bg-primary-700 transition-colors">
-              前往後台管理
-            </a>
-          </section>
-        ) : (
-          <>
-            <HeroBanner title={homepage.heroTitle} subtitle={homepage.heroSubtitle} image={homepage.heroImage} buttonText={homepage.heroButtonText} buttonLink={homepage.heroButtonLink} />
-            <AboutPreview title={homepage.aboutTitle} content={homepage.aboutText} image={homepage.aboutImage} />
-            {announcements.length > 0 && <AnnouncementList announcements={announcements} />}
-            {activities.length > 0 && <ActivityList activities={activities} />}
-            {galleries.length > 0 && <GalleryPreview galleries={galleries} />}
-            {homepage.features?.length > 0 && <FeatureGrid features={homepage.features} />}
-            <CTASection title={homepage.ctaTitle} text={homepage.ctaText} buttonText={homepage.ctaButtonText} buttonLink={homepage.ctaButtonLink} />
-          </>
-        )}
-      </BaseLayout>
-    </div>
+  <button id="skip-btn">跳過動畫 →</button>
 
-    <script>
-      const splash = document.getElementById('splash');
-      const mainSite = document.getElementById('main-site');
-      const SC = document.getElementById('scene-container');
-      const SVG = document.getElementById('main-svg');
-      const CV = document.getElementById('smoke-canvas');
-      const CTX = CV.getContext('2d');
-      const LG = document.getElementById('logo-container');
-      const LI = document.getElementById('logo-img');
-      const LGL = document.getElementById('logo-glow');
-      const bgP = document.querySelector('#bg-particles');
-      const tubeG = document.querySelector('#tube-group');
-      const tubeLiq = document.querySelector('#tube-liquid');
-      const liqStream = document.querySelector('#liquid-stream');
-      const liqStreamCore = document.querySelector('#liquid-stream-core');
-      const liqStreamG = document.querySelector('#liquid-stream-glow');
-      const liqStreamGO = document.querySelector('#liquid-stream-glow-outer');
-      const dropletsG = document.querySelector('#stream-droplets');
-      const liqGroup = document.querySelector('#liquid-group');
-      const liqRect = document.querySelector('#liquid-rect');
-      const liqSurface = document.querySelector('#liquid-surface');
-      const bubblesG = document.querySelector('#bubbles-group');
-      const innerParts = document.querySelector('#inner-particles-group');
-      const arcGroup = document.querySelector('#electric-arcs-group');
-      const flaskGlow = document.querySelector('#flask-glow-core');
-      const smokeHintEl = document.querySelector('#smoke-hint');
-      const flaskFrontEl = document.querySelector('#flask-front');
-      const flaskHL = document.querySelector('#flask-hl-left');
-      const STREAM_Y1=85,STREAM_Y2=140,STREAM_LEN=65;
-      const PH={OFF:-1,LIGHT:0,NORMAL:1,DENSE:2};
+  <div id="main-site">
+    <BaseLayout>
+      {showPlaceholder ? (
+        <Fragment set:html={siteContent} />
+      ) : (
+        <>
+          <HeroBanner title={homepage.heroTitle} subtitle={homepage.heroSubtitle} image={homepage.heroImage} buttonText={homepage.heroButtonText} buttonLink={homepage.heroButtonLink} />
+          <AboutPreview title={homepage.aboutTitle} content={homepage.aboutText} image={homepage.aboutImage} />
+          {announcements.length > 0 && <AnnouncementList announcements={announcements} />}
+          {activities.length > 0 && <ActivityList activities={activities} />}
+          {galleries.length > 0 && <GalleryPreview galleries={galleries} />}
+          {homepage.features?.length > 0 && <FeatureGrid features={homepage.features} />}
+          <CTASection title={homepage.ctaTitle} text={homepage.ctaText} buttonText={homepage.ctaButtonText} buttonLink={homepage.ctaButtonLink} />
+        </>
+      )}
+    </BaseLayout>
+  </div>
 
-      function updateCanvasSize(){
-        const r=SC.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
-        const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);
-        if(CV.width!==w||CV.height!==h){CV.width=w;CV.height=h}
-        CV.style.width=r.width+'px';CV.style.height=r.height+'px';
-      }
-      function toCanvas(sx,sy){
-        const sr=SVG.getBoundingClientRect(),cr=SC.getBoundingClientRect();
-        return{x:(sx/1000)*sr.width+(sr.left-cr.left),y:(sy/650)*sr.height+(sr.top-cr.top)};
-      }
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script is:inline>
+    // ===== DOM refs =====
+    const splash = document.getElementById('splash-overlay');
+    const skipBtn = document.getElementById('skip-btn');
+    const SC = document.getElementById('scene-container');
+    const SVG = document.getElementById('main-svg');
+    const CV = document.getElementById('smoke-canvas');
+    const CTX = CV.getContext('2d');
+    const LGoverlay = document.getElementById('logo-overlay');
+    const LI = document.getElementById('logo-img');
+    const LGL = document.getElementById('logo-glow');
+    const bgP = document.querySelector('#bg-particles');
+    const tubeG = document.querySelector('#tube-group');
+    const tubeLiq = document.querySelector('#tube-liquid');
+    const liqStream = document.querySelector('#liquid-stream');
+    const liqStreamCore = document.querySelector('#liquid-stream-core');
+    const liqStreamG = document.querySelector('#liquid-stream-glow');
+    const liqStreamGO = document.querySelector('#liquid-stream-glow-outer');
+    const dropletsG = document.querySelector('#stream-droplets');
+    const liqGroup = document.querySelector('#liquid-group');
+    const liqRect = document.querySelector('#liquid-rect');
+    const liqSurface = document.querySelector('#liquid-surface');
+    const bubblesG = document.querySelector('#bubbles-group');
+    const innerParts = document.querySelector('#inner-particles-group');
+    const arcGroup = document.querySelector('#electric-arcs-group');
+    const flaskGlow = document.querySelector('#flask-glow-core');
+    const smokeHint = document.querySelector('#smoke-hint');
+    const flaskFront = document.querySelector('#flask-front');
+    const flaskHL = document.querySelector('#flask-hl-left');
 
-      let dropletTimer=null;
-      function startDroplets(){
-        const NS='http://www.w3.org/2000/svg';
-        function tick(){
-          if(!dropletTimer)return;
-          for(let i=0;i<4;i++){
-            const t=.05+Math.random()*.9,px=488+t*12+(Math.random()-.5)*6,py=STREAM_Y1+t*(STREAM_Y2-STREAM_Y1),r=.6+Math.random()*2;
-            const el=document.createElementNS(NS,'circle');
-            el.setAttribute('cx',px);el.setAttribute('cy',py);el.setAttribute('r',r);
-            el.setAttribute('fill','rgba(170,235,255,.9)');el.setAttribute('filter','url(#glow-liquid)');
-            dropletsG.appendChild(el);
-            const a=Math.random()*Math.PI*2,d=2+Math.random()*12;
-            gsap.to(el,{attr:{cx:px+Math.cos(a)*d,cy:py+Math.sin(a)*d-4,r:0},opacity:0,duration:.2+Math.random()*.35,ease:'power2.out',onComplete(){el.remove()}});
-          }
-          dropletTimer=setTimeout(tick,25+Math.random()*45);
+    const STREAM_Y1=85,STREAM_Y2=140,STREAM_LEN=65;
+    const PH={OFF:-1,LIGHT:0,NORMAL:1,DENSE:2};
+
+    function updateCanvasSize(){
+      const r=SC.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
+      const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);
+      if(CV.width!==w||CV.height!==h){CV.width=w;CV.height=h}
+      CV.style.width=r.width+'px';CV.style.height=r.height+'px';
+    }
+    function toCanvas(sx,sy){
+      const sr=SVG.getBoundingClientRect(),cr=SC.getBoundingClientRect();
+      return{x:(sx/1000)*sr.width+(sr.left-cr.left),y:(sy/650)*sr.height+(sr.top-cr.top)};
+    }
+
+    // Droplets
+    let dropletTimer=null;
+    function startDroplets(){
+      const NS='http://www.w3.org/2000/svg';
+      function tick(){
+        if(!dropletTimer)return;
+        for(let i=0;i<4;i++){
+          const t=.05+Math.random()*.9,px=488+t*12+(Math.random()-.5)*6,py=STREAM_Y1+t*(STREAM_Y2-STREAM_Y1),r=.6+Math.random()*2;
+          const el=document.createElementNS(NS,'circle');
+          el.setAttribute('cx',px);el.setAttribute('cy',py);el.setAttribute('r',r);
+          el.setAttribute('fill','rgba(170,235,255,.9)');el.setAttribute('filter','url(#glow-liquid)');
+          dropletsG.appendChild(el);
+          const a=Math.random()*Math.PI*2,d=2+Math.random()*12;
+          gsap.to(el,{attr:{cx:px+Math.cos(a)*d,cy:py+Math.sin(a)*d-4,r:0},opacity:0,duration:.2+Math.random()*.35,ease:'power2.out',onComplete(){el.remove()}});
         }
-        tick();
+        dropletTimer=setTimeout(tick,25+Math.random()*45);
       }
-      function stopDroplets(){clearTimeout(dropletTimer);dropletTimer=null}
+      tick();
+    }
+    function stopDroplets(){clearTimeout(dropletTimer);dropletTimer=null}
 
-      function mkBubble(x,y,r){
-        const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
-        el.setAttribute('cx',x);el.setAttribute('cy',y);el.setAttribute('r',r);
-        el.setAttribute('fill','rgba(255,255,255,.2)');el.setAttribute('stroke','rgba(255,255,255,.35)');el.setAttribute('stroke-width','0.4');
-        bubblesG.appendChild(el);
-        gsap.to(el,{attr:{cy:y-18-Math.random()*90,r:r*.18},opacity:0,duration:1+Math.random()*2.2,delay:Math.random()*.08,ease:'power1.out',onComplete(){el.remove()}});
+    // Bubbles
+    function mkBubble(x,y,r){
+      const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',x);el.setAttribute('cy',y);el.setAttribute('r',r);
+      el.setAttribute('fill','rgba(255,255,255,.2)');el.setAttribute('stroke','rgba(255,255,255,.35)');el.setAttribute('stroke-width','0.4');
+      bubblesG.appendChild(el);
+      gsap.to(el,{attr:{cy:y-18-Math.random()*90,r:r*.18},opacity:0,duration:1+Math.random()*2.2,delay:Math.random()*.08,ease:'power1.out',onComplete(){el.remove()}});
+    }
+    function spawnBubbles(n,d){for(let i=0;i<n;i++)gsap.delayedCall(i*(d/n),()=>mkBubble(365+Math.random()*270,312+Math.random()*210,1.2+Math.random()*6))}
+
+    // Particles
+    const PCL=['rgba(0,200,255,.85)','rgba(0,242,212,.78)','rgba(145,85,252,.78)','rgba(180,218,255,.82)'];
+    function mkParticle(x,y){
+      const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',x);el.setAttribute('cy',y);el.setAttribute('r',1+Math.random()*3.5);
+      el.setAttribute('fill',PCL[Math.floor(Math.random()*4)]);el.setAttribute('filter','url(#glow-blue)');
+      innerParts.appendChild(el);
+      const a=Math.random()*Math.PI*2,d=16+Math.random()*65;
+      gsap.to(el,{attr:{cx:x+Math.cos(a)*d,cy:y+Math.sin(a)*d-16},opacity:0,duration:.6+Math.random()*1.6,delay:Math.random()*.05,ease:'power2.out',onComplete(){el.remove()}});
+    }
+    function spawnParticles(n,d){for(let i=0;i<n;i++)gsap.delayedCall(i*(d/n),()=>mkParticle(365+Math.random()*270,302+Math.random()*225))}
+
+    // Arcs
+    function mkArc(x1,y1,x2,y2){
+      const mx=(x1+x2)/2+(Math.random()-.5)*42,my=(y1+y2)/2+(Math.random()-.5)*42;
+      const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+      el.setAttribute('d','M'+x1+' '+y1+' Q'+mx+' '+my+' '+x2+' '+y2);
+      el.setAttribute('fill','none');el.setAttribute('stroke','rgba(120,215,255,.78)');
+      el.setAttribute('stroke-width','1.1');el.setAttribute('stroke-linecap','round');
+      el.setAttribute('filter','url(#glow-strong2)');el.setAttribute('opacity','0');
+      arcGroup.appendChild(el);
+      const dur=.28+Math.random()*.6,tl=gsap.timeline({onComplete(){el.remove()}});
+      tl.to(el,{opacity:.82,duration:dur*.2,ease:'power2.in'});
+      tl.to(el,{opacity:0,duration:dur*.6,ease:'power3.out'},'+='+dur*.1);
+    }
+    function spawnArcs(n,d){for(let i=0;i<n;i++)gsap.delayedCall(i*(d/n),()=>{const x1=370+Math.random()*260,y1=318+Math.random()*195;mkArc(x1,y1,x1+(Math.random()-.5)*85,y1+(Math.random()-.5)*65)})}
+
+    // Smoke
+    class SmokePt{
+      constructor(phase){
+        const p=toCanvas(500,140),a=(Math.random()-.5)*Math.PI*.55,s=.4+Math.random();
+        this.x=p.x+(Math.random()-.5)*40;this.y=p.y;this.life=1;
+        this.vx=Math.cos(a-Math.PI/2)*s;this.vy=Math.sin(a-Math.PI/2)*s-Math.random()*.9;
+        if(phase===PH.DENSE){this.r=24+Math.random()*80;this.op=.18+Math.random()*.3;this.decay=.0004+Math.random()*.0015;this.gr=.1+Math.random()*.22}
+        else if(phase===PH.NORMAL){this.r=10+Math.random()*36;this.op=.11+Math.random()*.22;this.decay=.0014+Math.random()*.0035;this.gr=.06+Math.random()*.12}
+        else{this.r=5+Math.random()*20;this.op=.06+Math.random()*.15;this.decay=.0022+Math.random()*.0045;this.gr=.025+Math.random()*.06}
       }
-      function spawnBubbles(n,d){for(let i=0;i<n;i++)gsap.delayedCall(i*(d/n),()=>mkBubble(365+Math.random()*270,312+Math.random()*210,1.2+Math.random()*6))}
-
-      const PCL=['rgba(0,200,255,.85)','rgba(0,242,212,.78)','rgba(145,85,252,.78)','rgba(180,218,255,.82)'];
-      function mkParticle(x,y){
-        const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
-        el.setAttribute('cx',x);el.setAttribute('cy',y);el.setAttribute('r',1+Math.random()*3.5);
-        el.setAttribute('fill',PCL[Math.floor(Math.random()*4)]);el.setAttribute('filter','url(#glow-blue)');
-        innerParts.appendChild(el);
-        const a=Math.random()*Math.PI*2,d=16+Math.random()*65;
-        gsap.to(el,{attr:{cx:x+Math.cos(a)*d,cy:y+Math.sin(a)*d-16},opacity:0,duration:.6+Math.random()*1.6,delay:Math.random()*.05,ease:'power2.out',onComplete(){el.remove()}});
+      update(){this.x+=this.vx;this.y+=this.vy;this.r+=this.gr;this.life-=this.decay;this.vy+=-.0004}
+      draw(ctx){
+        if(this.life<=0||this.op<=0)return;
+        const a=this.op*Math.min(this.life,1),g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+        g.addColorStop(0,'rgba(255,255,255,'+a.toFixed(3)+')');
+        g.addColorStop(.15,'rgba(255,255,255,'+(a*.68).toFixed(3)+')');
+        g.addColorStop(.42,'rgba(228,238,252,'+(a*.28).toFixed(3)+')');
+        g.addColorStop(1,'rgba(195,215,240,0)');ctx.fillStyle=g;
+        ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
       }
-      function spawnParticles(n,d){for(let i=0;i<n;i++)gsap.delayedCall(i*(d/n),()=>mkParticle(365+Math.random()*270,302+Math.random()*225))}
+    }
+    class SmokeSys{
+      constructor(){this.particles=[];this.phase=PH.OFF}
+      emit(n){let max=20;if(this.phase===PH.DENSE)max=400;else if(this.phase===PH.NORMAL)max=150;for(let i=0;i<n;i++){if(this.particles.length>=max)this.particles.shift();this.particles.push(new SmokePt(this.phase))}}
+      setPhase(p){this.phase=p}
+      update(){this.particles=this.particles.filter(p=>{p.update();return p.life>0&&p.op>0})}
+      draw(ctx){this.particles.forEach(p=>p.draw(ctx))}
+      clear(){this.particles=[]}
+    }
+    const smokeSys=new SmokeSys();
 
-      function mkArc(x1,y1,x2,y2){
-        const mx=(x1+x2)/2+(Math.random()-.5)*42,my=(y1+y2)/2+(Math.random()-.5)*42;
-        const el=document.createElementNS('http://www.w3.org/2000/svg','path');
-        el.setAttribute('d','M'+x1+' '+y1+' Q'+mx+' '+my+' '+x2+' '+y2);
-        el.setAttribute('fill','none');el.setAttribute('stroke','rgba(120,215,255,.78)');
-        el.setAttribute('stroke-width','1.1');el.setAttribute('stroke-linecap','round');
-        el.setAttribute('filter','url(#glow-strong)');el.setAttribute('opacity','0');
-        arcGroup.appendChild(el);
-        const dur=.28+Math.random()*.6,tl=gsap.timeline({onComplete(){el.remove()}});
-        tl.to(el,{opacity:.82,duration:dur*.2,ease:'power2.in'});
-        tl.to(el,{opacity:0,duration:dur*.6,ease:'power3.out'},'+='+dur*.1);
-      }
-      function spawnArcs(n,d){for(let i=0;i<n;i++)gsap.delayedCall(i*(d/n),()=>{const x1=370+Math.random()*260,y1=318+Math.random()*195;mkArc(x1,y1,x1+(Math.random()-.5)*85,y1+(Math.random()-.5)*65)})}
+    function smokeLoop(){
+      updateCanvasSize();const dpr=Math.min(devicePixelRatio||1,2);
+      CTX.save();CTX.setTransform(dpr,0,0,dpr,0,0);
+      CTX.clearRect(0,0,CV.width/dpr,CV.height/dpr);
+      smokeSys.update();smokeSys.draw(CTX);CTX.restore();
+      requestAnimationFrame(smokeLoop);
+    }
+    updateCanvasSize();smokeLoop();
 
-      class SmokePt{
-        constructor(phase){
-          const p=toCanvas(500,140),a=(Math.random()-.5)*Math.PI*.55,s=.4+Math.random();
-          this.x=p.x+(Math.random()-.5)*40;this.y=p.y;this.life=1;
-          this.vx=Math.cos(a-Math.PI/2)*s;this.vy=Math.sin(a-Math.PI/2)*s-Math.random()*.9;
-          if(phase===PH.DENSE){this.r=24+Math.random()*80;this.op=.18+Math.random()*.3;this.decay=.0004+Math.random()*.0015;this.gr=.1+Math.random()*.22}
-          else if(phase===PH.NORMAL){this.r=10+Math.random()*36;this.op=.11+Math.random()*.22;this.decay=.0014+Math.random()*.0035;this.gr=.06+Math.random()*.12}
-          else{this.r=5+Math.random()*20;this.op=.06+Math.random()*.15;this.decay=.0022+Math.random()*.0045;this.gr=.025+Math.random()*.06}
-        }
-        update(){this.x+=this.vx;this.y+=this.vy;this.r+=this.gr;this.life-=this.decay;this.vy+= -.0004}
-        draw(ctx){
-          if(this.life<=0||this.op<=0)return;
-          const a=this.op*Math.min(this.life,1),g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
-          g.addColorStop(0,'rgba(255,255,255,'+a.toFixed(3)+')');
-          g.addColorStop(.15,'rgba(255,255,255,'+(a*.68).toFixed(3)+')');
-          g.addColorStop(.42,'rgba(228,238,252,'+(a*.28).toFixed(3)+')');
-          g.addColorStop(1,'rgba(195,215,240,0)');ctx.fillStyle=g;
-          ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
-        }
-      }
-      class SmokeSys{
-        constructor(){this.particles=[];this.phase=PH.OFF}
-        emit(n){
-          let max=20;if(this.phase===PH.DENSE)max=400;else if(this.phase===PH.NORMAL)max=150;
-          for(let i=0;i<n;i++){if(this.particles.length>=max)this.particles.shift();this.particles.push(new SmokePt(this.phase))}
-        }
-        setPhase(p){this.phase=p}
-        update(){this.particles=this.particles.filter(p=>{p.update();return p.life>0&&p.op>0})}
-        draw(ctx){this.particles.forEach(p=>p.draw(ctx))}
-        clear(){this.particles=[]}
-      }
-      const smokeSys=new SmokeSys();
+    // ===== Initial state =====
+    gsap.set(tubeG,{transformOrigin:'12px 95px'});gsap.set(liqGroup,{opacity:0});
+    const streamEls=[liqStreamGO,liqStreamG,liqStream,liqStreamCore];
+    streamEls.forEach(el=>gsap.set(el,{opacity:0,attr:{'stroke-dashoffset':STREAM_LEN,'stroke-dasharray':STREAM_LEN}}));
+    gsap.set(LI,{opacity:0,scale:.8,filter:'blur(20px) brightness(1.3)'});
+    gsap.set(LGoverlay,{opacity:0});gsap.set(LGL,{opacity:0});
+    gsap.set(flaskGlow,{opacity:.04});gsap.set(flaskHL,{opacity:.25});
+    gsap.set(bgP,{opacity:0});gsap.set(smokeHint,{opacity:0});
 
-      function smokeLoop(){
-        updateCanvasSize();const dpr=Math.min(devicePixelRatio||1,2);
-        CTX.save();CTX.setTransform(dpr,0,0,dpr,0,0);
-        CTX.clearRect(0,0,CV.width/dpr,CV.height/dpr);
-        smokeSys.update();smokeSys.draw(CTX);CTX.restore();
-        requestAnimationFrame(smokeLoop);
-      }
+    // Act 1: Show scene
+    const a1=gsap.timeline();
+    a1.to(bgP,{opacity:.5,duration:1.2,ease:'power2.out'},0);
+    a1.to(flaskGlow,{opacity:.18,duration:1.6,ease:'power2.out'},.3);
+    a1.to(flaskHL,{opacity:1,duration:1.4,ease:'power2.out'},.4);
+    a1.to(SC,{y:-4,duration:2,ease:'sine.inOut',yoyo:true,repeat:1},0);
 
-      updateCanvasSize();smokeLoop();
+    // Act 2: Tube rotation + liquid stream
+    const a2=gsap.timeline();
+    a2.to(tubeG,{rotation:-90,duration:1.3,ease:'power3.inOut'},'s');
+    a2.to(tubeLiq,{attr:{y:165,height:8},duration:2.3,ease:'power2.in'},'s+=0.25');
+    const dashT={duration:1.2,ease:'power2.inOut'};
+    a2.to(liqStreamGO,{opacity:1,attr:{'stroke-dashoffset':0},...dashT},'s+=1.1');
+    a2.to(liqStreamG,{opacity:1,attr:{'stroke-dashoffset':0},...dashT},'s+=1.13');
+    a2.to(liqStream,{opacity:1,attr:{'stroke-dashoffset':0},...dashT},'s+=1.16');
+    a2.to(liqStreamCore,{opacity:1,attr:{'stroke-dashoffset':0},duration:1.1,ease:'power2.inOut'},'s+=1.19');
+    a2.to([liqStreamG,liqStreamGO],{opacity:.55,duration:.4,repeat:4,yoyo:true,ease:'sine.inOut',stagger:.06},'s+=1.25');
+    a2.call(startDroplets,null,'s+=1.2');a2.call(stopDroplets,null,'s+=2.3');
 
-      gsap.set(tubeG,{transformOrigin:'12px 95px'});gsap.set(liqGroup,{opacity:0});
-      const streamEls=[liqStreamGO,liqStreamG,liqStream,liqStreamCore];
-      streamEls.forEach(el=>{gsap.set(el,{opacity:0,attr:{'stroke-dashoffset':STREAM_LEN,'stroke-dasharray':STREAM_LEN}})});
-      gsap.set(LI,{opacity:0,scale:.8,filter:'blur(20px) brightness(1.3)'});
-      gsap.set(LG,{opacity:0});gsap.set(LGL,{opacity:0});
-      gsap.set(flaskGlow,{opacity:.04});gsap.set(flaskHL,{opacity:.25});
-      gsap.set(bgP,{opacity:0});gsap.set(smokeHintEl,{opacity:0});
+    // Act 3: Chemical reaction
+    const a3=gsap.timeline();
+    a3.set(liqGroup,{opacity:1},'s');
+    a3.to(liqRect,{attr:{height:210,y:340},duration:1.9,ease:'power3.in'},'s');
+    a3.to(liqSurface,{attr:{cy:340,rx:150},duration:1.9,ease:'power3.in'},'s');
+    a3.call(()=>liqRect.setAttribute('fill','rgba(0,180,245,.7)'),null,'s+=0.05');
+    a3.call(()=>liqRect.setAttribute('fill','rgba(0,232,210,.72)'),null,'s+=0.65');
+    a3.call(()=>liqRect.setAttribute('fill','rgba(118,68,242,.72)'),null,'s+=1.35');
+    a3.call(()=>liqRect.setAttribute('fill','rgba(162,208,255,.78)'),null,'s+=2.0');
+    a3.to(flaskGlow,{opacity:.55,duration:1.8,ease:'power3.in'},'s+=0.35');
+    a3.to(flaskHL,{opacity:1.7,duration:1.2,ease:'power2.out'},'s+=0.65');
+    a3.to(flaskFront,{opacity:.8,duration:1,ease:'power2.out'},'s+=0.65');
+    a3.call(()=>spawnBubbles(24,1.4),null,'s+=0.4');a3.call(()=>spawnBubbles(34,1.2),null,'s+=1.0');a3.call(()=>spawnBubbles(28,1.0),null,'s+=1.6');
+    a3.call(()=>spawnParticles(36,1.5),null,'s+=0.6');a3.call(()=>spawnParticles(46,1.2),null,'s+=1.2');a3.call(()=>spawnParticles(34,1.0),null,'s+=1.8');
+    a3.call(()=>spawnArcs(18,1.2),null,'s+=0.8');a3.call(()=>spawnArcs(24,1.0),null,'s+=1.3');a3.call(()=>spawnArcs(18,0.8),null,'s+=1.8');
 
-      const a1=gsap.timeline();
-      a1.to(bgP,{opacity:.5,duration:1.2,ease:'power2.out'},0);
-      a1.to(flaskGlow,{opacity:.18,duration:1.6,ease:'power2.out'},.3);
-      a1.to(flaskHL,{opacity:1,duration:1.4,ease:'power2.out'},.4);
-      a1.to(SC,{y:-4,duration:2,ease:'sine.inOut',yoyo:true,repeat:1},0);
+    // Act 4: Light smoke
+    const a4=gsap.timeline();
+    a4.call(()=>smokeSys.setPhase(PH.NORMAL),null,'s');
+    const e4={v:0,p:0};
+    a4.to(e4,{v:220,duration:1.5,ease:'none',onUpdate(){const d=e4.v-e4.p;if(d>.7){smokeSys.emit(Math.floor(d*2.2));e4.p=e4.v}}},'s');
+    a4.to(smokeHint,{opacity:.3,duration:.6},'s+=0.05');
 
-      const a2=gsap.timeline();
-      a2.to(tubeG,{rotation:-90,duration:1.3,ease:'power3.inOut'},'s');
-      a2.to(tubeLiq,{attr:{y:165,height:8},duration:2.3,ease:'power2.in'},'s+=0.25');
-      const dashTw={duration:1.2,ease:'power2.inOut'};
-      a2.to(liqStreamGO,{opacity:1,attr:{'stroke-dashoffset':0},...dashTw},'s+=1.1');
-      a2.to(liqStreamG,{opacity:1,attr:{'stroke-dashoffset':0},...dashTw},'s+=1.13');
-      a2.to(liqStream,{opacity:1,attr:{'stroke-dashoffset':0},...dashTw},'s+=1.16');
-      a2.to(liqStreamCore,{opacity:1,attr:{'stroke-dashoffset':0},duration:1.1,ease:'power2.inOut'},'s+=1.19');
-      a2.to([liqStreamG,liqStreamGO],{opacity:.55,duration:.4,repeat:4,yoyo:true,ease:'sine.inOut',stagger:.06},'s+=1.25');
-      a2.call(startDroplets,null,'s+=1.2');a2.call(stopDroplets,null,'s+=2.3');
+    // Act 5: Dense smoke + zoom
+    const a5=gsap.timeline();
+    a5.call(()=>smokeSys.setPhase(PH.DENSE),null,'s');
+    const e5={v:0,p:0};
+    a5.to(e5,{v:850,duration:1.5,ease:'power2.in',onUpdate(){const d=e5.v-e5.p;if(d>1){smokeSys.emit(Math.floor(d*3.5));e5.p=e5.v}}},'s');
+    a5.to(SC,{scale:5,duration:1.5,ease:'power3.in'},'s+=0.05');
+    a5.to(SVG,{opacity:0,duration:.8},'s+=0.1');
 
-      const a3=gsap.timeline();
-      a3.set(liqGroup,{opacity:1},'s');
-      a3.to(liqRect,{attr:{height:210,y:340},duration:1.9,ease:'power3.in'},'s');
-      a3.to(liqSurface,{attr:{cy:340,rx:150},duration:1.9,ease:'power3.in'},'s');
-      a3.call(()=>liqRect.setAttribute('fill','rgba(0,180,245,.7)'),null,'s+=0.05');
-      a3.call(()=>liqRect.setAttribute('fill','rgba(0,232,210,.72)'),null,'s+=0.65');
-      a3.call(()=>liqRect.setAttribute('fill','rgba(118,68,242,.72)'),null,'s+=1.35');
-      a3.call(()=>liqRect.setAttribute('fill','rgba(162,208,255,.78)'),null,'s+=2.0');
-      a3.to(flaskGlow,{opacity:.55,duration:1.8,ease:'power3.in'},'s+=0.35');
-      a3.to(flaskHL,{opacity:1.7,duration:1.2,ease:'power2.out'},'s+=0.65');
-      a3.to(flaskFrontEl,{opacity:.8,duration:1,ease:'power2.out'},'s+=0.65');
-      a3.call(()=>spawnBubbles(24,1.4),null,'s+=0.4');a3.call(()=>spawnBubbles(34,1.2),null,'s+=1.0');a3.call(()=>spawnBubbles(28,1.0),null,'s+=1.6');
-      a3.call(()=>spawnParticles(36,1.5),null,'s+=0.6');a3.call(()=>spawnParticles(46,1.2),null,'s+=1.2');a3.call(()=>spawnParticles(34,1.0),null,'s+=1.8');
-      a3.call(()=>spawnArcs(18,1.2),null,'s+=0.8');a3.call(()=>spawnArcs(24,1.0),null,'s+=1.3');a3.call(()=>spawnArcs(18,0.8),null,'s+=1.8');
+    // Act 6: Logo reveal + shrink back
+    const a6=gsap.timeline({defaults:{ease:'power3.out'}});
+    a6.set(LGoverlay,{opacity:1},'s');
+    a6.to(LI,{opacity:1,scale:1,filter:'blur(0px) brightness(1)',duration:1.2},'s+=0.2');
+    a6.to(LGL,{opacity:.65,duration:1},'s+=0.45');
+    a6.call(()=>smokeSys.setPhase(PH.LIGHT),null,'s+=1.5');
+    a6.to(CV,{opacity:0,duration:1.8},'s+=1.5');
+    a6.to(SC,{scale:1,duration:2},'s+=1.5');
+    a6.to(LGL,{opacity:.45,duration:.8},'s+=2.0');
 
-      const a4=gsap.timeline();
-      a4.call(()=>smokeSys.setPhase(PH.NORMAL),null,'s');
-      const e4={v:0,p:0};
-      a4.to(e4,{v:220,duration:1.5,ease:'none',onUpdate(){const d=e4.v-e4.p;if(d>.7){smokeSys.emit(Math.floor(d*2.2));e4.p=e4.v}}},'s');
-      a4.to(smokeHintEl,{opacity:.3,duration:.6},'s+=0.05');
+    // Master timeline
+    const master=gsap.timeline({paused:true});
+    master.add(a1,0).add(a2,2).add(a3,3.5).add(a4,6.5).add(a5,8).add(a6,9.5);
 
-      const a5=gsap.timeline();
-      a5.call(()=>smokeSys.setPhase(PH.DENSE),null,'s');
-      const e5={v:0,p:0};
-      a5.to(e5,{v:850,duration:1.5,ease:'power2.in',onUpdate(){const d=e5.v-e5.p;if(d>1){smokeSys.emit(Math.floor(d*3.5));e5.p=e5.v}}},'s');
-      a5.to(SC,{scale:5,duration:1.5,ease:'power3.in'},'s+=0.05');
-      a5.to(SVG,{opacity:0,duration:.8},'s+=0.1');
+    function hideSplash(){
+      document.body.style.overflow = '';
+      splash.classList.add('fade-out');
+      setTimeout(()=>{splash.classList.add('removed')},800);
+    }
 
-      const a6=gsap.timeline({defaults:{ease:'power3.out'}});
-      a6.set(LG,{opacity:1},'s');
-      a6.to(LI,{opacity:1,scale:1,filter:'blur(0px) brightness(1)',duration:1.2},'s+=0.2');
-      a6.to(LGL,{opacity:.65,duration:1},'s+=0.45');
-      a6.call(()=>smokeSys.setPhase(PH.LIGHT),null,'s+=1.5');
-      a6.to(CV,{opacity:0,duration:1.8},'s+=1.5');
-      a6.to(SC,{scale:1,duration:2},'s+=1.5');
-      a6.to(LGL,{opacity:.45,duration:.8},'s+=2.0');
+    master.eventCallback('onComplete', hideSplash);
 
-      const master=gsap.timeline({paused:true});
-      master.add(a1,0).add(a2,2).add(a3,3.5).add(a4,6.5).add(a5,8).add(a6,9.5);
-      master.eventCallback('onComplete',hideSplash);
+    // Skip button
+    skipBtn.addEventListener('click', ()=>{
+      master.seek(12);master.pause();smokeSys.clear();stopDroplets();
+      [bubblesG,innerParts,arcGroup,dropletsG].forEach(g=>{while(g.firstChild)g.removeChild(g.firstChild)});
+      gsap.set(SC,{scale:1});gsap.set(CV,{opacity:0});
+      gsap.set(LGoverlay,{opacity:1});gsap.set(LI,{opacity:1,scale:1,filter:'blur(0px) brightness(1)'});
+      gsap.set(LGL,{opacity:.45});hideSplash();
+    });
 
-      function hideSplash(){
-        mainSite.classList.add('visible');
-        splash.classList.add('hide');
-        setTimeout(()=>{splash.classList.add('done');splash.remove()},800);
-      }
+    // Start when GSAP is ready
+    function start(){
+      updateCanvasSize();
+      master.play();
+    }
 
-      window.skipSplash=function(){
-        master.seek(12);master.pause();smokeSys.clear();stopDroplets();
-        [bubblesG,innerParts,arcGroup,dropletsG].forEach(g=>{while(g.firstChild)g.removeChild(g.firstChild)});
-        gsap.set(SC,{scale:1});gsap.set(CV,{opacity:0});
-        gsap.set(LG,{opacity:1});gsap.set(LI,{opacity:1,scale:1,filter:'blur(0px) brightness(1)'});
-        gsap.set(LGL,{opacity:.45});hideSplash();
-      };
-
-      window.addEventListener('load',()=>{updateCanvasSize();master.play()});
-    </script>
-  </body>
+    if (typeof gsap !== 'undefined') {
+      start();
+    } else {
+      // GSAP not loaded yet, wait
+      const check = setInterval(()=>{
+        if (typeof gsap !== 'undefined') { clearInterval(check); start(); }
+      }, 50);
+    }
+  </script>
+</body>
 </html>
