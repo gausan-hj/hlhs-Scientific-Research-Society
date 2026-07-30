@@ -1,21 +1,57 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import PolaroidCard from '@components/memories/PolaroidCard.astro';
-import PhotoCarousel from '@components/memories/PhotoCarousel.astro';
 import Lightbox from '@components/memories/Lightbox.astro';
-import ScrollReveal from '@components/common/ScrollReveal.astro';
-import SanityImage from '@components/common/SanityImage.astro';
+import HomeIntro from '@components/home/HomeIntro.astro';
 import { sanityClient } from 'sanity:client';
 import { MEMORIES_QUERY, HOMEPAGE_PURPOSE_QUERY } from '@sanity/queries';
 import { SITE } from '@lib/constants';
 import { urlFor } from '../sanity/client';
 
-const [memories, purpose] = await Promise.all([
+const [albums, purposeDoc] = await Promise.all([
   sanityClient.fetch(MEMORIES_QUERY) as Promise<any[]>,
   sanityClient.fetch(HOMEPAGE_PURPOSE_QUERY) as Promise<{ purposes: string[] } | null>,
 ]);
 
-const purposes: string[] = purpose?.purposes || [];
+const purposes: string[] = purposeDoc?.purposes || [];
+
+interface Polaroid {
+  src: string;
+  fullSrc: string;
+  alt: string;
+  raw: any;
+  albumTitle: string;
+  eventDate: string;
+}
+
+const photos: Polaroid[] = [];
+for (const album of albums) {
+  for (const img of album.images || []) {
+    photos.push({
+      src: urlFor(img).width(440).auto('format').url(),
+      fullSrc: urlFor(img).width(1600).auto('format').url(),
+      alt: img.alt || img.caption || album.title,
+      raw: img,
+      albumTitle: album.title,
+      eventDate: album.eventDate,
+    });
+  }
+}
+
+const CARD_W = 220;
+const GAP = 40;
+const PAD = 60;
+const STEP = CARD_W + GAP;
+const NAIL_Y = 28;
+const ROPE_SAG = 40;
+const SVG_H = 100;
+const totalWidth = photos.length > 0 ? PAD * 2 + photos.length * CARD_W + (photos.length - 1) * GAP : 0;
+
+function nailX(i: number) { return PAD + CARD_W / 2 + i * STEP; }
+function rotation(i: number) { return (((i % 5) - 2) * 1.8).toFixed(1); }
+function formatDate(d: string) {
+  if (!d) return '';
+  return d;
+}
 ---
 
 <BaseLayout
@@ -23,160 +59,235 @@ const purposes: string[] = purpose?.purposes || [];
   description="科研学会的美好回忆 — 回顾历年精彩活动与珍贵时刻"
   canonical={`${SITE.url}/memories`}
 >
-  <!-- Hero -->
-  <section class="pt-20 pb-16 lg:pt-28 lg:pb-24 hero-gradient">
-    <div class="container-custom">
-      <div class="text-center mb-16">
-        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">📸 回忆簿</h1>
-        <p class="text-lg max-w-2xl mx-auto text-text-muted">
-          每一页都是珍贵的回忆，记录着科研学会的精彩时刻。
-        </p>
-      </div>
-
-      <ScrollReveal>
-        <div class="grid md:grid-cols-2 gap-10 lg:gap-16 max-w-5xl mx-auto">
-          <!-- LEFT: Research Areas -->
-          <div>
-            <h2 class="text-lg font-semibold text-text mb-6 flex items-center gap-2">
-              <svg class="h-5 w-5 text-ocean-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
-              项目
-            </h2>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="text-center">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #eff6ff, #dbeafe)">
-                  <svg class="h-8 w-8 sm:h-10 sm:w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M24 12 L24 26 Q24 32 18 36 Q10 52 8 58 Q7 60 10 60 L54 60 Q57 60 56 58 Q54 52 46 36 Q40 32 40 26 L40 12" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
-                    <rect x="22" y="8" width="20" height="5" rx="1.5" fill="#3b82f6"/>
-                    <path d="M12 50 Q30 42 52 50" fill="#93c5fd" opacity="0.6"/>
-                    <path d="M10 50 Q30 44 54 50 Q30 38 10 50Z" fill="#60a5fa" opacity="0.5"/>
-                    <circle cx="26" cy="44" r="2" fill="#bfdbfe" opacity="0.8"/>
-                    <circle cx="38" cy="42" r="1.5" fill="#bfdbfe" opacity="0.8"/>
-                    <circle cx="32" cy="40" r="1" fill="#bfdbfe" opacity="0.6"/>
-                  </svg>
-                </div>
-                <p class="text-sm font-medium text-text">化学</p>
-              </div>
-              <div class="text-center">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7)">
-                  <svg class="h-8 w-8 sm:h-10 sm:w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="32" cy="32" r="6" fill="#16a34a"/>
-                    <circle cx="32" cy="32" r="3" fill="#22c55e"/>
-                    <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#4ade80" stroke-width="1.5" transform="rotate(0 32 32)" opacity="0.7"/>
-                    <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#22c55e" stroke-width="1.5" transform="rotate(60 32 32)" opacity="0.7"/>
-                    <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#16a34a" stroke-width="1.5" transform="rotate(-60 32 32)" opacity="0.7"/>
-                    <circle cx="56" cy="32" r="2.5" fill="#86efac"/>
-                    <circle cx="8" cy="32" r="2.5" fill="#86efac"/>
-                    <circle cx="32" cy="6" r="2.5" fill="#86efac"/>
-                  </svg>
-                </div>
-                <p class="text-sm font-medium text-text">物理</p>
-              </div>
-              <div class="text-center">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #fef3c7, #fde68a)">
-                  <svg class="h-8 w-8 sm:h-10 sm:w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 8 C28 24 36 40 48 56" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>
-                    <path d="M48 8 C36 24 28 40 16 56" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
-                    <line x1="22" y1="20" x2="42" y2="20" stroke="#fbbf24" stroke-width="1.5"/>
-                    <line x1="25" y1="32" x2="39" y2="32" stroke="#fbbf24" stroke-width="1.5"/>
-                    <line x1="22" y1="44" x2="42" y2="44" stroke="#fbbf24" stroke-width="1.5"/>
-                  </svg>
-                </div>
-                <p class="text-sm font-medium text-text">生物</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- RIGHT: Purpose from Sanity -->
-          <div>
-            <h2 class="text-lg font-semibold text-text mb-6 flex items-center gap-2">
-              <svg class="h-5 w-5 text-ocean-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
-              目的
-            </h2>
-
-            {purposes.length > 0 ? (
-              <ul class="space-y-3">
-                {purposes.map((item: string, idx: number) => (
-                  <li class="flex items-start gap-3 text-text-muted leading-relaxed">
-                    <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-ocean-400 shrink-0" aria-hidden="true"></span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p class="text-text-muted text-sm">尚未设定目的内容，请在 Sanity Studio 中编辑。</p>
-            )}
-          </div>
-        </div>
-      </ScrollReveal>
-    </div>
-  </section>
-
-  <!-- Lightbox -->
   <Lightbox />
 
-  <!-- Memories content -->
-  <section class="pb-24">
-    <div class="container-custom">
-      {memories.length > 0 ? (
-        <div class="space-y-24">
-          {memories.map((album: any, albumIdx: number) => (
-            <ScrollReveal>
-              <article class="scroll-reveal">
-                <div class="text-center mb-8">
-                  <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-ocean-100 dark:bg-ocean-900/30 text-ocean-700 dark:text-ocean-200 text-xs font-medium mb-3">
-                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
-                    {album.eventDate}
-                  </div>
-                  <h2 class="text-2xl sm:text-3xl font-bold text-text">{album.title}</h2>
-                  {album.description && (
-                    <p class="mt-2 text-text-muted max-w-2xl mx-auto leading-relaxed">{album.description}</p>
-                  )}
-                </div>
-
-                {album.coverImage && (
-                  <div class="mb-8 max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-lg">
-                    <SanityImage
-                      image={album.coverImage}
-                      alt={album.title}
-                      class="w-full"
-                      maxWidth={800}
-                    />
-                  </div>
-                )}
-
-                {album.images?.length > 0 && (
-                  <div class="relative group/carousel">
-                    <PhotoCarousel id={`carousel-${album._id}`}>
-                      {album.images.map((img: any, imgIdx: number) => {
-                        const src = urlFor(img).width(400).auto('format').url();
-                        const fullSrc = urlFor(img).width(1600).auto('format').url();
-                        const alt = img.alt || img.caption || album.title;
-                        return (
-                          <div class="snap-start shrink-0 w-[200px] sm:w-[240px] cursor-pointer" onclick={`window.__openLightbox && window.__openLightbox('${fullSrc}', '${alt.replace(/'/g, "\\'")}');`}>
-                            <PolaroidCard
-                              image={img}
-                              alt={alt}
-                              caption={img.caption}
-                              albumTitle={album.title}
-                              eventDate={album.eventDate}
-                            />
-                          </div>
-                        );
-                      })}
-                    </PhotoCarousel>
-                  </div>
-                )}
-              </article>
-            </ScrollReveal>
-          ))}
-        </div>
-      ) : (
-        <div class="text-center py-20">
-          <div class="text-6xl mb-6">📸</div>
-          <h2 class="text-2xl font-bold text-text mb-2">暂无回忆</h2>
-          <p class="text-text-muted">还没有任何回忆簿，请在 Sanity Studio 新增。</p>
-        </div>
-      )}
+  <!-- Hero -->
+  <section class="pt-24 sm:pt-28 pb-10 sm:pb-14 hero-gradient">
+    <div class="container-custom text-center">
+      <h1 class="text-3xl sm:text-5xl font-bold text-text mb-3 tracking-tight">回忆簿</h1>
+      <p class="text-text-muted text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+        珍贵的回忆，记录著科研学会的精彩时刻。
+      </p>
     </div>
   </section>
+
+  <!-- Intro: 项目 + 目的 -->
+  <HomeIntro purposes={purposes} />
+
+  <!-- Memory Wall -->
+  <section class="pb-20 sm:pb-32" style="background: var(--bg);">
+    {photos.length === 0 ? (
+      <div class="container-custom text-center py-20">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#ede4d3] mb-5">
+          <svg class="h-7 w-7 text-[#b8a080]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+        </div>
+        <p class="text-text-muted text-base">暂无回忆内容，请前往 Sanity 后台添加。</p>
+      </div>
+    ) : (
+      <div class="relative group/wall" id="memory-wall">
+        <!-- Scroll arrows -->
+        <button
+          class="absolute left-2 top-[calc(50%+20px)] -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/85 shadow-md flex items-center justify-center opacity-0 group-hover/wall:opacity-100 transition-opacity duration-300 border border-[#e8dfd0] hover:bg-white"
+          type="button" aria-label="向左滑动" data-wall-dir="left"
+        >
+          <svg class="h-4 w-4 text-[#8b7355]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+        </button>
+        <button
+          class="absolute right-2 top-[calc(50%+20px)] -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/85 shadow-md flex items-center justify-center opacity-0 group-hover/wall:opacity-100 transition-opacity duration-300 border border-[#e8dfd0] hover:bg-white"
+          type="button" aria-label="向右滑动" data-wall-dir="right"
+        >
+          <svg class="h-4 w-4 text-[#8b7355]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+        </button>
+
+        <!-- Scrollable track -->
+        <div
+          class="overflow-x-auto scroll-smooth scrollbar-hide"
+          style="scrollbar-width:none; -ms-overflow-style:none;"
+          data-wall-track
+        >
+          <div class="relative inline-flex items-start min-w-max" style="padding: 60px {PAD}px 24px {PAD}px;">
+
+            {/* SVG Rope */}
+            <svg
+              class="absolute top-0 left-0 pointer-events-none z-0 overflow-visible"
+              style={`width:${totalWidth}px; height:${SVG_H}px;`}
+              viewBox={`0 0 ${totalWidth} ${SVG_H}`}
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="rope-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#c4a46c"/>
+                  <stop offset="30%" stop-color="#d4b87a"/>
+                  <stop offset="60%" stop-color="#c9a862"/>
+                  <stop offset="100%" stop-color="#b89550"/>
+                </linearGradient>
+              </defs>
+              {/* Rope main line */}
+              <path
+                d={`M ${nailX(0)} ${NAIL_Y} ${
+                  photos.map((_, i) => {
+                    if (i === 0) return '';
+                    const prevX = nailX(i - 1);
+                    const curX = nailX(i);
+                    const midX = (prevX + curX) / 2;
+                    return `Q ${midX} ${NAIL_Y + ROPE_SAG} ${curX} ${NAIL_Y}`;
+                  }).join(' ')
+                }`}
+                fill="none"
+                stroke="url(#rope-grad)"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              {/* Rope texture shadow */}
+              <path
+                d={`M ${nailX(0)} ${NAIL_Y + 2} ${
+                  photos.map((_, i) => {
+                    if (i === 0) return '';
+                    const prevX = nailX(i - 1);
+                    const curX = nailX(i);
+                    const midX = (prevX + curX) / 2;
+                    return `Q ${midX} ${NAIL_Y + ROPE_SAG + 2} ${curX} ${NAIL_Y + 2}`;
+                  }).join(' ')
+                }`}
+                fill="none"
+                stroke="rgba(139,115,85,0.15)"
+                stroke-width="1"
+                stroke-linecap="round"
+              />
+              {/* Nails */}
+              {photos.map((_, i) => {
+                const cx = nailX(i);
+                return (
+                  <g>
+                    <circle cx={cx} cy={NAIL_Y} r="6" fill="#c4c0ba" stroke="#a39c93" stroke-width="1"/>
+                    <circle cx={cx - 1.5} cy={NAIL_Y - 1.5} r="2" fill="#e8e4de"/>
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Polaroid cards */}
+            {photos.map(function(photo, i) {
+              return (
+                <div
+                  class="shrink-0"
+                  style={`width:${CARD_W}px; margin-top:50px;${i === photos.length - 1 ? '' : ` margin-right:${GAP}px;`}`}
+                >
+                  {/* Clothespin */}
+                  <div class="flex flex-col items-center -mb-1 relative z-10">
+                    <div class="w-4 h-5 bg-[#c4956a] rounded-b-[3px] shadow-sm" style="background: linear-gradient(180deg, #d4a574 0%, #b8845a 100%);"></div>
+                    <div class="w-5 h-1.5 bg-[#a0704a] rounded-sm -mt-px"></div>
+                  </div>
+
+                  {/* Drop string */}
+                  <div class="w-px h-3 mx-auto bg-[#c4a46c]/30"></div>
+
+                  {/* Polaroid card */}
+                  <div
+                    class="bg-white rounded-sm shadow-md transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-xl cursor-pointer"
+                    style={`transform: rotate(${rotation(i)}deg); box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);`}
+                    data-lightbox-src={photo.fullSrc}
+                    data-lightbox-alt={photo.alt}
+                  >
+                    {/* Photo area */}
+                    <div class="p-2 pb-0">
+                      <div class="aspect-[3/4] overflow-hidden bg-gray-100">
+                        <img
+                          src={photo.src}
+                          alt={photo.alt}
+                          class="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    </div>
+                    {/* Date caption */}
+                    <div class="px-3 pt-2.5 pb-3.5 text-center">
+                      <p class="text-xs font-medium text-[#8b7355] tracking-wide">
+                        {formatDate(photo.eventDate)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Fade edges */}
+        <div class="pointer-events-none absolute inset-y-0 left-0 w-12 z-20" style="background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);"></div>
+        <div class="pointer-events-none absolute inset-y-0 right-0 w-12 z-20" style="background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);"></div>
+      </div>
+    )}
+  </section>
 </BaseLayout>
+
+<style is:global>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initWall() {
+    // Lightbox click
+    document.addEventListener('click', function(e) {
+      var el = (e.target as HTMLElement).closest('[data-lightbox-src]') as HTMLElement;
+      if (!el) return;
+      var src = el.dataset.lightboxSrc;
+      var alt = el.dataset.lightboxAlt;
+      if (window.__openLightbox) window.__openLightbox(src, alt);
+    });
+
+    var track = document.querySelector('[data-wall-track]') as HTMLElement;
+    if (!track) return;
+
+    var leftBtn = document.querySelector('[data-wall-dir="left"]') as HTMLElement;
+    var rightBtn = document.querySelector('[data-wall-dir="right"]') as HTMLElement;
+    var scrollAmount = 280;
+
+    if (leftBtn) {
+      leftBtn.addEventListener('click', function() {
+        track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      });
+    }
+    if (rightBtn) {
+      rightBtn.addEventListener('click', function() {
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+    }
+
+    // Mouse wheel → horizontal scroll
+    track.addEventListener('wheel', function(e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        track.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+
+    // Drag to scroll
+    var isDown = false, startX = 0, scrollLeft = 0;
+    track.addEventListener('mousedown', function(e: MouseEvent) {
+      isDown = true;
+      startX = e.pageX - track.offsetLeft;
+      scrollLeft = track.scrollLeft;
+      track.style.cursor = 'grabbing';
+    });
+    track.addEventListener('mouseleave', function() {
+      isDown = false;
+      track.style.cursor = '';
+    });
+    track.addEventListener('mouseup', function() {
+      isDown = false;
+      track.style.cursor = '';
+    });
+    track.addEventListener('mousemove', function(e: MouseEvent) {
+      if (!isDown) return;
+      e.preventDefault();
+      track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.5;
+    });
+  }
+
+  initWall();
+  document.addEventListener('astro:after-swap', initWall);
+</script>

@@ -2,14 +2,14 @@ import { defineType, defineField } from 'sanity';
 
 export default defineType({
   name: 'homepagePurpose',
-  title: '回憶簿 — 學會目的',
+  title: '首页 — 学会目的',
   type: 'document',
   fields: [
     defineField({
       name: 'title',
-      title: '內部標題',
+      title: '内部标题',
       type: 'string',
-      initialValue: '回憶簿目的',
+      initialValue: '首页目的',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -22,7 +22,7 @@ export default defineType({
   ],
   preview: {
     prepare() {
-      return { title: '回憶簿 — 學會目的' };
+      return { title: '首页 — 学会目的' };
     },
   },
 });

@@ -15,16 +15,16 @@ import { Dashboard } from './components/Dashboard';
 export const structure: StructureResolver = (S) =>
   S.list()
     .id('root')
-    .title('內容管理')
+    .title('内容管理')
     .items([
       S.listItem()
         .id('dashboard')
-        .title('首頁儀表板')
+        .title('首页仪表板')
         .icon(LayoutDashboard)
         .child(
           S.component(Dashboard)
             .id('dashboard-view')
-            .title('儀表板'),
+            .title('仪表板'),
         ),
       S.divider(),
       S.listItem()
@@ -38,40 +38,40 @@ export const structure: StructureResolver = (S) =>
         ),
       S.listItem()
         .id('activities')
-        .title('活動')
+        .title('活动')
         .icon(Calendar)
         .child(
           S.documentTypeList('activity')
             .id('activities-list')
-            .title('活動'),
+            .title('活动'),
         ),
       S.listItem()
         .id('memories')
-        .title('回憶簿')
+        .title('回忆簿')
         .icon(Camera)
         .child(
           S.documentTypeList('memoryAlbum')
             .id('memories-list')
-            .title('回憶簿'),
+            .title('回忆簿'),
         ),
       S.listItem()
         .id('resources')
-        .title('資源')
+        .title('资源')
         .icon(BookOpen)
         .child(
           S.documentTypeList('resource')
             .id('resources-list')
-            .title('資源'),
+            .title('资源'),
         ),
       S.divider(),
       S.listItem()
         .id('teachers')
-        .title('顧問老師')
+        .title('顾问老师')
         .icon(GraduationCap)
         .child(
           S.documentTypeList('teacher')
             .id('teachers-list')
-            .title('顧問老師'),
+            .title('顾问老师'),
         ),
       S.listItem()
         .id('committee')
@@ -85,33 +85,33 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       S.listItem()
         .id('gallery')
-        .title('相冊')
+        .title('相册')
         .icon(Image)
         .child(
           S.documentTypeList('gallery')
             .id('gallery-list')
-            .title('相冊'),
+            .title('相册'),
         ),
       S.listItem()
         .id('homepage')
-        .title('首頁內容')
+        .title('首页内容')
         .icon(() => '🏠')
         .child(
           S.document()
             .id('homepage-doc')
             .schemaType('homepage')
             .documentId('homepage')
-            .title('首頁內容'),
+            .title('首页内容'),
         ),
       S.listItem()
         .id('homepage-purpose')
-        .title('回憶簿 — 目的')
+        .title('首页 — 目的')
         .icon(Target)
         .child(
           S.document()
             .id('homepage-purpose-doc')
             .schemaType('homepagePurpose')
             .documentId('homepagePurpose')
-            .title('回憶簿目的'),
+            .title('首页目的'),
         ),
     ]);
