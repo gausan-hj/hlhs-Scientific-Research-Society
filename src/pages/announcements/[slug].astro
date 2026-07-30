@@ -7,6 +7,7 @@ import CategoryBadge from '@components/common/CategoryBadge.astro';
 import { sanityClient } from 'sanity:client';
 import { ANNOUNCEMENT_BY_SLUG_QUERY } from '@sanity/queries';
 import { formatDate, blocksToText, siteUrl } from '@lib/utils';
+import { urlFor } from '../../sanity/client';
 
 export async function getStaticPaths() {
   const announcements = await sanityClient.fetch(
@@ -24,19 +25,20 @@ if (!announcement) {
 
 const seoTitle = announcement.seo?.metaTitle || announcement.title;
 const seoDescription = announcement.seo?.metaDescription || announcement.excerpt || blocksToText(announcement.body);
+const ogImage = announcement.seo?.ogImage || announcement.coverImage;
+const seoImage = (ogImage?.asset || ogImage?._ref) ? urlFor(ogImage).width(1200).url() : undefined;
 ---
 
 <BaseLayout
   title={seoTitle}
   description={seoDescription}
-  image={announcement.seo?.ogImage ? undefined : undefined}
+  image={seoImage}
   canonical={siteUrl(`/announcements/${slug}`)}
   type="article"
   publishedAt={announcement.publishedAt}
 >
   <article class="py-16 lg:py-24">
     <div class="container-custom max-w-4xl">
-      <!-- Header -->
       <ScrollReveal>
         <div class="text-center mb-10">
           <div class="flex items-center justify-center gap-3 mb-4">
@@ -50,10 +52,9 @@ const seoDescription = announcement.seo?.metaDescription || announcement.excerpt
         </div>
       </ScrollReveal>
 
-      {/* Cover Image */}
       {announcement.coverImage && (
         <ScrollReveal>
-          <div class="mb-10 rounded-2xl overflow-hidden shadow-xl">
+          <div class="mb-10 rounded-2xl overflow-hidden shadow-lg">
             <SanityImage
               image={announcement.coverImage}
               alt={announcement.title}
@@ -65,18 +66,16 @@ const seoDescription = announcement.seo?.metaDescription || announcement.excerpt
         </ScrollReveal>
       )}
 
-      {/* Content */}
       <ScrollReveal>
         <div class="prose-custom">
           <RichText blocks={announcement.body} />
         </div>
       </ScrollReveal>
 
-      <!-- Back -->
       <div class="mt-12 text-center">
         <a
           href="/announcements"
-          class="inline-flex items-center text-primary-600 font-medium text-sm hover:text-primary-700 transition-colors"
+          class="inline-flex items-center text-ocean-600 font-medium text-sm hover:text-ocean-700 transition-colors"
         >
           <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />

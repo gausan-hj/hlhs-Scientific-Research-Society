@@ -6,7 +6,7 @@ export async function GET() {
     { path: '/activities', priority: '0.8', changefreq: 'weekly' },
     { path: '/announcements', priority: '0.8', changefreq: 'weekly' },
     { path: '/resources', priority: '0.8', changefreq: 'weekly' },
-    { path: '/join', priority: '0.8', changefreq: 'weekly' },
+    { path: '/memories', priority: '0.8', changefreq: 'weekly' },
   ];
 
   const urls = staticPages.map((p) => ({

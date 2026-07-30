@@ -56,6 +56,27 @@ export const structure: StructureResolver = (S) =>
         ),
       S.divider(),
       S.listItem()
+        .id('homepage-purpose')
+        .title('回憶簿 — 目的')
+        .icon(() => '🎯')
+        .child(
+          S.document()
+            .id('homepage-purpose-doc')
+            .schemaType('homepagePurpose')
+            .documentId('homepagePurpose')
+            .title('回憶簿目的'),
+        ),
+      S.listItem()
+        .id('memories')
+        .title('回憶簿')
+        .icon(() => '📸')
+        .child(
+          S.documentTypeList('memoryAlbum')
+            .id('memories-list')
+            .title('回憶簿'),
+        ),
+      S.divider(),
+      S.listItem()
         .id('gallery')
         .title('相冊')
         .icon(() => '🖼️')

@@ -1,9 +1,9 @@
 /**
- * Format a date string to locale date string (zh-HK)
+ * Format a date string to locale date string (zh-CN)
  */
 export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('zh-HK', {
+  return d.toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

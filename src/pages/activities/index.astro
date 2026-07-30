@@ -16,37 +16,33 @@ const [activities, total] = await Promise.all([
   sanityClient.fetch(ACTIVITIES_QUERY, { start, end }),
   sanityClient.fetch(ACTIVITIES_COUNT_QUERY),
 ]);
-
 const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 ---
 
-<BaseLayout
-  title="活動"
-  description="瀏覽科研學會的最新活動、工作坊及比賽資訊"
-  canonical={`${SITE.url}/activities`}
->
-  <section class="py-16 lg:py-24">
-    <div class="container-custom">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">活動</h1>
-        <p class="text-lg text-text-muted max-w-2xl mx-auto">
-          瀏覽科研學會舉辦的各類活動，從學術講座到實驗工作坊，應有盡有。
-        </p>
-      </div>
+<BaseLayout title="活动" description="浏览科研学会的最新活动、工作坊及比赛信息" canonical={`${SITE.url}/activities`}>
 
+  <!-- Hero -->
+  <section class="pt-16 pb-8 lg:pt-24 lg:pb-10 text-center hero-gradient">
+    <div class="container-custom">
+      <div class="section-label justify-center">Activities</div>
+      <h1 class="text-[clamp(2rem,5vw,3rem)] font-extrabold mb-4 text-text">活动</h1>
+      <p class="text-base lg:text-lg leading-relaxed max-w-2xl mx-auto text-text-secondary">
+        浏览科研学会举办的各类活动，从学术讲座到实验工作坊，应有尽有。
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container-custom">
       {activities.length > 0 ? (
         <>
-          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
-            {activities.map((item: any) => (
-              <ScrollReveal>
-                <ActivityCard {...item} />
-              </ScrollReveal>
-            ))}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
+            {activities.map((item: any) => (<ScrollReveal><ActivityCard {...item} /></ScrollReveal>))}
           </div>
           <Pagination currentPage={page} totalPages={totalPages} baseUrl="/activities" />
         </>
       ) : (
-        <p class="text-center text-text-muted py-12">暫無活動</p>
+        <p class="text-center text-small py-16">暂无活动</p>
       )}
     </div>
   </section>

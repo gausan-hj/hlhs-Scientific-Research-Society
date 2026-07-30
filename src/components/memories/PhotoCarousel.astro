@@ -1,0 +1,77 @@
+---
+const { id } = Astro.props;
+---
+<div
+  id={id}
+  class="carousel relative overflow-hidden"
+  data-carousel-id={id}
+>
+  <!-- Left arrow -->
+  <button
+    class="carousel-btn-left absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-md flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 hover:opacity-100 transition-opacity focus:opacity-100"
+    type="button"
+    aria-label="向左滑動"
+  >
+    <svg class="h-5 w-5 text-gray-700 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+  </button>
+
+  <!-- Track -->
+  <div
+    class="carousel-track flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-2"
+    style="scrollbar-width:none;-ms-overflow-style:none"
+  >
+    <slot />
+  </div>
+
+  <!-- Right arrow -->
+  <button
+    class="carousel-btn-right absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-md flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 hover:opacity-100 transition-opacity focus:opacity-100"
+    type="button"
+    aria-label="向右滑動"
+  >
+    <svg class="h-5 w-5 text-gray-700 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+  </button>
+</div>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+</style>
+
+<script>
+  const id = '{id}';
+
+  function initCarousel() {
+    const el = document.querySelector(`[data-carousel-id="${id}"]`);
+    if (!el) return;
+
+    const track = el.querySelector('.carousel-track') as HTMLElement;
+    const leftBtn = el.querySelector('.carousel-btn-left') as HTMLElement;
+    const rightBtn = el.querySelector('.carousel-btn-right') as HTMLElement;
+    if (!track) return;
+
+    const scrollAmount = 300;
+
+    leftBtn?.addEventListener('click', () => {
+      track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+    rightBtn?.addEventListener('click', () => {
+      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+
+    // Touch / mouse drag
+    let isDown = false, startX = 0, scrollLeft = 0;
+    track.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; track.style.cursor = 'grabbing'; });
+    track.addEventListener('mouseleave', () => { isDown = false; track.style.cursor = ''; });
+    track.addEventListener('mouseup', () => { isDown = false; track.style.cursor = ''; });
+    track.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - track.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      track.scrollLeft = scrollLeft - walk;
+    });
+  }
+
+  initCarousel();
+  document.addEventListener('astro:after-swap', initCarousel);
+</script>

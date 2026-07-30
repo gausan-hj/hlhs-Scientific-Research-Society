@@ -1,6 +1,5 @@
 ---
 import SanityImage from '../common/SanityImage.astro';
-import ScrollReveal from '../common/ScrollReveal.astro';
 
 interface Props {
   title: string;
@@ -13,53 +12,45 @@ interface Props {
 const { title, subtitle, image, buttonText = '了解更多', buttonLink = '/about' } = Astro.props;
 ---
 
-<section class="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-slate-900 dark:via-slate-900 dark:to-secondary-950">
-  <div class="container-custom py-20 lg:py-32">
-    <div class="grid lg:grid-cols-2 gap-12 items-center">
-      <div class="space-y-8">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-text leading-tight tracking-tight">
+<section class="relative overflow-hidden hero-gradient">
+  <!-- Subtle water bubbles decoration -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute top-10 left-[10%] w-24 h-24 rounded-full bg-ocean-200/20"></div>
+    <div class="absolute top-20 right-[15%] w-16 h-16 rounded-full bg-wave-200/20"></div>
+    <div class="absolute bottom-12 left-[20%] w-32 h-32 rounded-full bg-ocean-100/20"></div>
+    <div class="absolute bottom-8 right-[10%] w-20 h-20 rounded-full bg-wave-100/25"></div>
+  </div>
+
+  <div class="container-custom relative py-16 sm:py-20 lg:py-28">
+    <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+
+      <div class="space-y-5 text-center lg:text-left">
+        <span class="section-label justify-center lg:justify-start">Research Society</span>
+        <h1 class="text-[clamp(1.75rem,4vw,3rem)] font-extrabold leading-tight tracking-tight text-text">
           {title}
         </h1>
         {subtitle && (
-          <p class="text-lg sm:text-xl text-text-muted leading-relaxed max-w-lg">
+          <p class="text-sm sm:text-base lg:text-lg leading-relaxed max-w-lg mx-auto lg:mx-0 text-text-secondary">
             {subtitle}
           </p>
         )}
-        <div class="flex gap-4">
-          <a
-            href={buttonLink}
-            class="inline-flex items-center px-6 py-3 rounded-xl bg-primary-600 text-white font-medium text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25 hover:shadow-xl hover:shadow-primary-600/30"
-          >
+        <div class="flex flex-wrap gap-2.5 pt-1 justify-center lg:justify-start">
+          <a href={buttonLink} class="btn-primary text-sm">
             {buttonText}
-            <svg class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
           </a>
+          <a href="/about" class="btn-secondary text-sm">关于我们</a>
         </div>
       </div>
 
       {image && (
-        <div class="hidden lg:block">
-          <SanityImage
-            image={image}
-            alt={title}
-            class="rounded-2xl shadow-2xl"
-            maxWidth={600}
-          />
+        <div class="hidden lg:block rounded-xl overflow-hidden shadow-lg border border-border-light">
+          <SanityImage image={image} alt={title} class="w-full" maxWidth={640} />
         </div>
       )}
     </div>
   </div>
 
-  <!-- Decorative background shapes -->
-  <div class="absolute top-0 right-0 -z-10 opacity-20 dark:opacity-10" aria-hidden="true">
-    <svg width="600" height="600" viewBox="0 0 600 600" fill="none">
-      <circle cx="500" cy="100" r="200" fill="url(#grad1)" />
-      <circle cx="100" cy="400" r="150" fill="url(#grad2)" />
-      <defs>
-        <radialGradient id="grad1"><stop stop-color="var(--color-primary-400)" /><stop offset="1" stop-color="transparent" /></radialGradient>
-        <radialGradient id="grad2"><stop stop-color="var(--color-secondary-400)" /><stop offset="1" stop-color="transparent" /></radialGradient>
-      </defs>
-    </svg>
-  </div>
+  <!-- Wave bottom -->
+  <div class="wave-divider" aria-hidden="true"></div>
 </section>

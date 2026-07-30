@@ -9,68 +9,43 @@ import { SITE } from '@lib/constants';
 const resources: any[] = await sanityClient.fetch(RESOURCES_QUERY);
 
 const typeOptions = [
-  { value: '', label: '全部' },
-  { value: 'pdf', label: 'PDF' },
-  { value: 'ppt', label: 'PPT' },
-  { value: 'video', label: '影片' },
-  { value: 'link', label: '連結' },
-  { value: 'external', label: '外部資源' },
+  { value:'',label:'全部' }, { value:'pdf',label:'PDF' }, { value:'ppt',label:'PPT' },
+  { value:'video',label:'视频' }, { value:'link',label:'链接' }, { value:'external',label:'外部资源' },
 ];
-
 const url = new URL(Astro.request.url);
 const activeType = url.searchParams.get('type') || '';
-
-const filtered = activeType
-  ? resources.filter((r: any) => r.type === activeType)
-  : resources;
+const filtered = activeType ? resources.filter((r:any)=>r.type===activeType) : resources;
 ---
 
-<BaseLayout
-  title="資源"
-  description="下載科研學會的學習資源、簡報及參考資料"
-  canonical={`${SITE.url}/resources`}
->
-  <section class="py-16 lg:py-24">
-    <div class="container-custom">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">資源</h1>
-        <p class="text-lg text-text-muted max-w-2xl mx-auto">
-          下載科研學會提供的學習資源，包括簡報、筆記、影片及外部連結。
-        </p>
-      </div>
+<BaseLayout title="资源" description="下载科研学会的学习资源、简报及参考资料" canonical={`${SITE.url}/resources`}>
 
-      <!-- Type Filter -->
+  <section class="pt-16 pb-8 lg:pt-24 lg:pb-10 text-center hero-gradient">
+    <div class="container-custom">
+      <div class="section-label justify-center">Resources</div>
+      <h1 class="text-[clamp(2rem,5vw,3rem)] font-extrabold mb-4 text-text">资源</h1>
+      <p class="text-base lg:text-lg leading-relaxed max-w-2xl mx-auto text-text-secondary">
+        下载科研学会提供的学习资源，包括简报、笔记、视频及外部链接。
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container-custom">
       <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
         {typeOptions.map((opt) => {
           const isActive = activeType === opt.value;
-          const href = opt.value
-            ? `/resources?type=${opt.value}`
-            : '/resources';
+          const href = opt.value ? `/resources?type=${opt.value}` : '/resources';
           return (
-            <a
-              href={href}
-              class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-bg-alt text-text-muted hover:text-text hover:bg-bg-alt/80'
-              }`}
-            >
-              {opt.label}
-            </a>
+            <a href={href} class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'btn-primary !text-sm' : 'btn-secondary !text-sm !font-medium !border !border-border'}`}>{opt.label}</a>
           );
         })}
       </div>
-
       {filtered.length > 0 ? (
         <div class="max-w-3xl mx-auto space-y-3 scroll-reveal-stagger">
-          {filtered.map((item: any) => (
-            <ScrollReveal>
-              <ResourceCard {...item} />
-            </ScrollReveal>
-          ))}
+          {filtered.map((item:any)=>(<ScrollReveal><ResourceCard {...item} /></ScrollReveal>))}
         </div>
       ) : (
-        <p class="text-center text-text-muted py-12">暫無資源</p>
+        <p class="text-center text-small py-16">暂无资源</p>
       )}
     </div>
   </section>

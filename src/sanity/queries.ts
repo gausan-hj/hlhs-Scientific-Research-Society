@@ -178,3 +178,33 @@ export const ALL_SLUGS_QUERY = `
   "activities": *[_type == "activity" && defined(slug.current)].slug.current,
 }
 `;
+
+// ==================== Homepage Purpose ====================
+export const HOMEPAGE_PURPOSE_QUERY = `*[_type == "homepagePurpose"][0]{
+  purposes
+}`;
+
+// ==================== Memories ====================
+export const MEMORIES_QUERY = `*[_type == "memoryAlbum" && defined(slug.current)] | order(eventDate desc){
+  _id,
+  title,
+  slug,
+  eventDate,
+  description,
+  coverImage,
+  images[]{
+    ...,
+    asset->
+  },
+  publishedAt,
+  seo,
+}`;
+
+export const LATEST_MEMORIES_QUERY = `*[_type == "memoryAlbum" && defined(slug.current)] | order(eventDate desc) [0...3]{
+  _id,
+  title,
+  slug,
+  eventDate,
+  description,
+  coverImage,
+}`;

@@ -1,0 +1,182 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PolaroidCard from '@components/memories/PolaroidCard.astro';
+import PhotoCarousel from '@components/memories/PhotoCarousel.astro';
+import Lightbox from '@components/memories/Lightbox.astro';
+import ScrollReveal from '@components/common/ScrollReveal.astro';
+import SanityImage from '@components/common/SanityImage.astro';
+import { sanityClient } from 'sanity:client';
+import { MEMORIES_QUERY, HOMEPAGE_PURPOSE_QUERY } from '@sanity/queries';
+import { SITE } from '@lib/constants';
+import { urlFor } from '../sanity/client';
+
+const [memories, purpose] = await Promise.all([
+  sanityClient.fetch(MEMORIES_QUERY) as Promise<any[]>,
+  sanityClient.fetch(HOMEPAGE_PURPOSE_QUERY) as Promise<{ purposes: string[] } | null>,
+]);
+
+const purposes: string[] = purpose?.purposes || [];
+---
+
+<BaseLayout
+  title="回忆簿"
+  description="科研学会的美好回忆 — 回顾历年精彩活动与珍贵时刻"
+  canonical={`${SITE.url}/memories`}
+>
+  <!-- Hero -->
+  <section class="pt-20 pb-16 lg:pt-28 lg:pb-24 hero-gradient">
+    <div class="container-custom">
+      <div class="text-center mb-16">
+        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">📸 回忆簿</h1>
+        <p class="text-lg max-w-2xl mx-auto text-text-muted">
+          每一页都是珍贵的回忆，记录着科研学会的精彩时刻。
+        </p>
+      </div>
+
+      <ScrollReveal>
+        <div class="grid md:grid-cols-2 gap-10 lg:gap-16 max-w-5xl mx-auto">
+          <!-- LEFT: Research Areas -->
+          <div>
+            <h2 class="text-lg font-semibold text-text mb-6 flex items-center gap-2">
+              <svg class="h-5 w-5 text-ocean-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
+              项目
+            </h2>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #eff6ff, #dbeafe)">
+                  <svg class="h-8 w-8 sm:h-10 sm:w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 12 L24 26 Q24 32 18 36 Q10 52 8 58 Q7 60 10 60 L54 60 Q57 60 56 58 Q54 52 46 36 Q40 32 40 26 L40 12" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+                    <rect x="22" y="8" width="20" height="5" rx="1.5" fill="#3b82f6"/>
+                    <path d="M12 50 Q30 42 52 50" fill="#93c5fd" opacity="0.6"/>
+                    <path d="M10 50 Q30 44 54 50 Q30 38 10 50Z" fill="#60a5fa" opacity="0.5"/>
+                    <circle cx="26" cy="44" r="2" fill="#bfdbfe" opacity="0.8"/>
+                    <circle cx="38" cy="42" r="1.5" fill="#bfdbfe" opacity="0.8"/>
+                    <circle cx="32" cy="40" r="1" fill="#bfdbfe" opacity="0.6"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-text">化学</p>
+              </div>
+              <div class="text-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7)">
+                  <svg class="h-8 w-8 sm:h-10 sm:w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="6" fill="#16a34a"/>
+                    <circle cx="32" cy="32" r="3" fill="#22c55e"/>
+                    <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#4ade80" stroke-width="1.5" transform="rotate(0 32 32)" opacity="0.7"/>
+                    <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#22c55e" stroke-width="1.5" transform="rotate(60 32 32)" opacity="0.7"/>
+                    <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="#16a34a" stroke-width="1.5" transform="rotate(-60 32 32)" opacity="0.7"/>
+                    <circle cx="56" cy="32" r="2.5" fill="#86efac"/>
+                    <circle cx="8" cy="32" r="2.5" fill="#86efac"/>
+                    <circle cx="32" cy="6" r="2.5" fill="#86efac"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-text">物理</p>
+              </div>
+              <div class="text-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #fef3c7, #fde68a)">
+                  <svg class="h-8 w-8 sm:h-10 sm:w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 8 C28 24 36 40 48 56" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M48 8 C36 24 28 40 16 56" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="22" y1="20" x2="42" y2="20" stroke="#fbbf24" stroke-width="1.5"/>
+                    <line x1="25" y1="32" x2="39" y2="32" stroke="#fbbf24" stroke-width="1.5"/>
+                    <line x1="22" y1="44" x2="42" y2="44" stroke="#fbbf24" stroke-width="1.5"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-text">生物</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Purpose from Sanity -->
+          <div>
+            <h2 class="text-lg font-semibold text-text mb-6 flex items-center gap-2">
+              <svg class="h-5 w-5 text-ocean-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
+              目的
+            </h2>
+
+            {purposes.length > 0 ? (
+              <ul class="space-y-3">
+                {purposes.map((item: string, idx: number) => (
+                  <li class="flex items-start gap-3 text-text-muted leading-relaxed">
+                    <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-ocean-400 shrink-0" aria-hidden="true"></span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="text-text-muted text-sm">尚未设定目的内容，请在 Sanity Studio 中编辑。</p>
+            )}
+          </div>
+        </div>
+      </ScrollReveal>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <Lightbox />
+
+  <!-- Memories content -->
+  <section class="pb-24">
+    <div class="container-custom">
+      {memories.length > 0 ? (
+        <div class="space-y-24">
+          {memories.map((album: any, albumIdx: number) => (
+            <ScrollReveal>
+              <article class="scroll-reveal">
+                <div class="text-center mb-8">
+                  <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-ocean-100 dark:bg-ocean-900/30 text-ocean-700 dark:text-ocean-200 text-xs font-medium mb-3">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                    {album.eventDate}
+                  </div>
+                  <h2 class="text-2xl sm:text-3xl font-bold text-text">{album.title}</h2>
+                  {album.description && (
+                    <p class="mt-2 text-text-muted max-w-2xl mx-auto leading-relaxed">{album.description}</p>
+                  )}
+                </div>
+
+                {album.coverImage && (
+                  <div class="mb-8 max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-lg">
+                    <SanityImage
+                      image={album.coverImage}
+                      alt={album.title}
+                      class="w-full"
+                      maxWidth={800}
+                    />
+                  </div>
+                )}
+
+                {album.images?.length > 0 && (
+                  <div class="relative group/carousel">
+                    <PhotoCarousel id={`carousel-${album._id}`}>
+                      {album.images.map((img: any, imgIdx: number) => {
+                        const src = urlFor(img).width(400).auto('format').url();
+                        const fullSrc = urlFor(img).width(1600).auto('format').url();
+                        const alt = img.alt || img.caption || album.title;
+                        return (
+                          <div class="snap-start shrink-0 w-[200px] sm:w-[240px] cursor-pointer" onclick={`window.__openLightbox && window.__openLightbox('${fullSrc}', '${alt.replace(/'/g, "\\'")}');`}>
+                            <PolaroidCard
+                              image={img}
+                              alt={alt}
+                              caption={img.caption}
+                              albumTitle={album.title}
+                              eventDate={album.eventDate}
+                            />
+                          </div>
+                        );
+                      })}
+                    </PhotoCarousel>
+                  </div>
+                )}
+              </article>
+            </ScrollReveal>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20">
+          <div class="text-6xl mb-6">📸</div>
+          <h2 class="text-2xl font-bold text-text mb-2">暂无回忆</h2>
+          <p class="text-text-muted">还没有任何回忆簿，请在 Sanity Studio 新增。</p>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

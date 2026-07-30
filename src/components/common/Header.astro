@@ -4,7 +4,6 @@ import ThemeToggle from './ThemeToggle.astro';
 
 const currentPath = Astro.url.pathname;
 
-// Find active index for the sliding pill
 function getActiveIndex(path: string): number {
   if (path === '/') return 0;
   return NAV_LINKS.findIndex((link) => link.href !== '/' && path.startsWith(link.href));
@@ -12,64 +11,43 @@ function getActiveIndex(path: string): number {
 const activeIndex = getActiveIndex(currentPath);
 ---
 
-<header class="sticky top-0 z-50 bg-bg/80 backdrop-blur-lg border-b border-border" role="banner">
+<header class="sticky top-0 z-50 border-b backdrop-blur-sm" style="background: color-mix(in srgb, var(--bg) 92%, transparent); border-color: var(--border-light);" role="banner">
   <div class="container-custom">
-    <nav class="flex items-center justify-between h-16" aria-label="主要導航">
-      <!-- Logo -->
-      <a
-        href="/"
-        class="flex items-center gap-2 text-lg font-bold text-text hover:opacity-80 transition-opacity shrink-0"
-        aria-label={`${SITE.name} — 回到首頁`}
-      >
-        <img src="/logo.png" alt={SITE.name} class="h-8 w-auto" />
+    <nav class="flex items-center justify-between h-14" aria-label="主导航">
+
+      <a href="/" class="flex items-center gap-2.5 shrink-0 hover:opacity-80 transition-opacity" aria-label={`${SITE.name} — 回到首页`}>
+        <img src="/logo.png" alt={SITE.name} class="h-9 w-auto" />
       </a>
 
-      <!-- Desktop Nav with sliding pill -->
-      <div class="hidden md:block relative">
-        <ul class="relative flex items-center gap-1" role="menubar" id="nav-list">
-          {NAV_LINKS.map((link, i) => {
-            const isActive = i === activeIndex;
-            return (
-              <li role="none">
-                <a
-                  href={link.href}
-                  role="menuitem"
-                  class={`nav-link relative z-10 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-                    isActive
-                      ? 'text-primary-600'
-                      : 'text-text-muted hover:text-text'
-                  }`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {link.label}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-        <!-- Sliding pill background -->
-        <div
-          id="nav-pill"
-          class="absolute top-0 z-0 h-full rounded-lg bg-primary-50 dark:bg-primary-950/50 transition-all duration-300 ease-out"
-          style={`left: ${activeIndex * 80}px; width: 80px;`}
-        >
-        </div>
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-1">
+        {NAV_LINKS.map((link, i) => {
+          const isActive = i === activeIndex;
+          return (
+            <a
+              href={link.href}
+              class={`px-3.5 py-2 rounded-md text-[0.9rem] font-medium transition-colors duration-200 ${
+                isActive
+                  ? 'text-ocean-700 bg-ocean-50 dark:bg-ocean-950/30'
+                  : 'text-secondary hover:text-ocean-700 hover:bg-ocean-50/50 dark:hover:bg-ocean-950/20'
+              }`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })}
       </div>
 
-      <!-- Right side: theme toggle + mobile menu button -->
-      <div class="flex items-center gap-2">
+      <!-- Right side -->
+      <div class="flex items-center gap-1.5">
         <ThemeToggle />
-
-        <!-- Mobile menu button -->
         <button
-          id="mobile-menu-btn"
-          type="button"
-          class="md:hidden p-2 rounded-lg text-text-muted hover:text-text hover:bg-bg-alt transition-colors"
-          aria-label="開啟選單"
-          aria-expanded="false"
-          aria-controls="mobile-menu"
+          id="mobile-menu-btn" type="button"
+          class="md:hidden p-2 rounded-md text-secondary hover:text-ocean-700 hover:bg-bg-alt transition-colors"
+          aria-label="打开菜单" aria-expanded="false" aria-controls="mobile-menu"
         >
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
           </svg>
         </button>
@@ -77,29 +55,17 @@ const activeIndex = getActiveIndex(currentPath);
     </nav>
 
     <!-- Mobile Menu -->
-    <div
-      id="mobile-menu"
-      class="hidden md:hidden border-t border-border py-4"
-      role="menu"
-    >
-      <ul class="flex flex-col gap-1">
+    <div id="mobile-menu" class="hidden md:hidden border-t border-border py-3" role="menu">
+      <ul class="flex flex-col gap-0.5">
         {NAV_LINKS.map((link) => {
-          const isActive = currentPath === link.href ||
-            (link.href !== '/' && currentPath.startsWith(link.href));
+          const isActive = currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href));
           return (
             <li role="none">
-              <a
-                href={link.href}
-                role="menuitem"
-                class={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'text-primary-600 bg-primary-50 dark:bg-primary-950/50'
-                    : 'text-text-muted hover:text-text hover:bg-bg-alt'
+              <a href={link.href} role="menuitem"
+                class={`block px-3.5 py-2.5 rounded-md text-[0.9rem] font-medium transition-colors ${
+                  isActive ? 'text-ocean-700 bg-ocean-50 dark:bg-ocean-950/30' : 'text-secondary hover:text-ocean-700 hover:bg-bg-alt'
                 }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
+                aria-current={isActive ? 'page' : undefined}>{link.label}</a>
             </li>
           );
         })}
@@ -109,61 +75,7 @@ const activeIndex = getActiveIndex(currentPath);
 </header>
 
 <script>
-  function initMobileMenu() {
-    const btn = document.getElementById('mobile-menu-btn');
-    const menu = document.getElementById('mobile-menu');
-    if (!btn || !menu) return;
-
-    btn.addEventListener('click', () => {
-      const isOpen = !menu.classList.contains('hidden');
-      if (isOpen) {
-        menu.classList.add('hidden');
-        btn.setAttribute('aria-expanded', 'false');
-        btn.setAttribute('aria-label', '開啟選單');
-      } else {
-        menu.classList.remove('hidden');
-        btn.setAttribute('aria-expanded', 'true');
-        btn.setAttribute('aria-label', '關閉選單');
-      }
-    });
-  }
-
-  function initNavPill() {
-    const links = document.querySelectorAll('#nav-list .nav-link');
-    const pill = document.getElementById('nav-pill');
-    if (!links.length || !pill) return;
-
-    function movePill(el: Element) {
-      const rect = el.getBoundingClientRect();
-      const parentRect = (el.parentElement?.parentElement)?.getBoundingClientRect();
-      if (!parentRect) return;
-      pill.style.left = `${rect.left - parentRect.left}px`;
-      pill.style.width = `${rect.width}px`;
-    }
-
-    // Set initial position on the active link
-    links.forEach((link) => {
-      if (link.getAttribute('aria-current') === 'page') {
-        movePill(link);
-      }
-
-      link.addEventListener('mouseenter', () => movePill(link));
-
-      link.addEventListener('mouseleave', () => {
-        // Move back to active link
-        links.forEach((l) => {
-          if (l.getAttribute('aria-current') === 'page') {
-            movePill(l);
-          }
-        });
-      });
-    });
-  }
-
+  function initMobileMenu(){const b=document.getElementById('mobile-menu-btn'),m=document.getElementById('mobile-menu');if(!b||!m)return;b.addEventListener('click',()=>{const o=!m.classList.contains('hidden');m.classList.toggle('hidden');b.setAttribute('aria-expanded',String(!o));b.setAttribute('aria-label',o?'打开菜单':'关闭菜单');});}
   initMobileMenu();
-  initNavPill();
-  document.addEventListener('astro:after-swap', () => {
-    initMobileMenu();
-    initNavPill();
-  });
+  document.addEventListener('astro:after-swap',initMobileMenu);
 </script>

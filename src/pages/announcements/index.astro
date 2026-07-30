@@ -4,12 +4,7 @@ import AnnouncementCard from '@components/announcements/AnnouncementCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import ScrollReveal from '@components/common/ScrollReveal.astro';
 import { sanityClient } from 'sanity:client';
-import {
-  ANNOUNCEMENTS_QUERY,
-  ANNOUNCEMENTS_COUNT_QUERY,
-  ANNOUNCEMENTS_BY_CATEGORY_QUERY,
-  ANNOUNCEMENTS_BY_CATEGORY_COUNT_QUERY,
-} from '@sanity/queries';
+import { ANNOUNCEMENTS_QUERY, ANNOUNCEMENTS_COUNT_QUERY, ANNOUNCEMENTS_BY_CATEGORY_QUERY, ANNOUNCEMENTS_BY_CATEGORY_COUNT_QUERY } from '@sanity/queries';
 import { SITE, ITEMS_PER_PAGE } from '@lib/constants';
 
 const url = new URL(Astro.request.url);
@@ -19,76 +14,53 @@ const start = (page - 1) * ITEMS_PER_PAGE;
 const end = start + ITEMS_PER_PAGE;
 
 const [announcements, total] = category
-  ? await Promise.all([
-      sanityClient.fetch(ANNOUNCEMENTS_BY_CATEGORY_QUERY, { category, start, end }),
-      sanityClient.fetch(ANNOUNCEMENTS_BY_CATEGORY_COUNT_QUERY, { category }),
-    ])
-  : await Promise.all([
-      sanityClient.fetch(ANNOUNCEMENTS_QUERY, { start, end }),
-      sanityClient.fetch(ANNOUNCEMENTS_COUNT_QUERY),
-    ]);
-
+  ? await Promise.all([sanityClient.fetch(ANNOUNCEMENTS_BY_CATEGORY_QUERY,{category,start,end}),sanityClient.fetch(ANNOUNCEMENTS_BY_CATEGORY_COUNT_QUERY,{category})])
+  : await Promise.all([sanityClient.fetch(ANNOUNCEMENTS_QUERY,{start,end}),sanityClient.fetch(ANNOUNCEMENTS_COUNT_QUERY)]);
 const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
 const categoryOptions = [
-  { value: '', label: '全部' },
-  { value: 'general', label: '一般公告' },
-  { value: 'event', label: '活動消息' },
-  { value: 'competition', label: '比賽資訊' },
-  { value: 'academic', label: '學術分享' },
-  { value: 'other', label: '其他' },
+  { value:'',label:'全部' },
+  { value:'general',label:'一般公告' },
+  { value:'event',label:'活动消息' },
+  { value:'competition',label:'比赛信息' },
+  { value:'academic',label:'学术分享' },
+  { value:'other',label:'其他' },
 ];
 ---
 
-<BaseLayout
-  title="公告"
-  description="科研學會最新公告、活動消息及比賽資訊"
-  canonical={`${SITE.url}/announcements`}
->
-  <section class="py-16 lg:py-24">
-    <div class="container-custom">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">公告</h1>
-        <p class="text-lg text-text-muted max-w-2xl mx-auto">
-          查閱科研學會的最新公告、活動消息及比賽資訊。
-        </p>
-      </div>
+<BaseLayout title="公告" description="科研学会最新公告、活动消息及比赛信息" canonical={`${SITE.url}/announcements`}>
 
-      <!-- Category Filter -->
+  <section class="pt-16 pb-8 lg:pt-24 lg:pb-10 text-center hero-gradient">
+    <div class="container-custom">
+      <div class="section-label justify-center">Announcements</div>
+      <h1 class="text-[clamp(2rem,5vw,3rem)] font-extrabold mb-4 text-text">公告</h1>
+      <p class="text-base lg:text-lg leading-relaxed max-w-2xl mx-auto text-text-secondary">
+        查阅科研学会的最新公告、活动消息及比赛信息。
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container-custom">
       <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
         {categoryOptions.map((opt) => {
           const isActive = category === opt.value;
-          const href = opt.value
-            ? `/announcements?category=${opt.value}`
-            : '/announcements';
+          const href = opt.value ? `/announcements?category=${opt.value}` : '/announcements';
           return (
-            <a
-              href={href}
-              class={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-bg-alt text-text-muted hover:text-text hover:bg-bg-alt/80'
-              }`}
-            >
-              {opt.label}
-            </a>
+            <a href={href} class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'btn-primary !text-sm' : 'btn-secondary !text-sm !font-medium !border !border-border'}`}>{opt.label}</a>
           );
         })}
       </div>
 
       {announcements.length > 0 ? (
         <>
-          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
-            {announcements.map((item: any) => (
-              <ScrollReveal>
-                <AnnouncementCard {...item} />
-              </ScrollReveal>
-            ))}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
+            {announcements.map((item: any) => (<ScrollReveal><AnnouncementCard {...item} /></ScrollReveal>))}
           </div>
           <Pagination currentPage={page} totalPages={totalPages} baseUrl={`/announcements${category ? `?category=${category}&` : '?'}`} />
         </>
       ) : (
-        <p class="text-center text-text-muted py-12">暫無公告</p>
+        <p class="text-center text-small py-16">暂无公告</p>
       )}
     </div>
   </section>

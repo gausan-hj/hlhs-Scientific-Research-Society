@@ -1,0 +1,261 @@
+/* ==============================================
+   Sanity Studio — Apple + Notion 风格覆盖
+   不修改 Schema，不影响数据，不影响 Astro 网站
+   ============================================== */
+
+/* ── 字体 ── */
+/* 使用 Inter + Noto Sans TC（已通过 @fontsource 安装） */
+/* Sanity UI 使用 CSS 变量控制字体，此处在 ThemeConfig 层面已配置 */
+
+/* ── 侧边栏导航增强 ── */
+[data-ui="Navbar"] {
+  backdrop-filter: blur(16px);
+  background: rgba(250, 250, 250, 0.85) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── 输入框圆角 12px ── */
+[data-ui="TextInput"] input,
+[data-ui="TextInput"] textarea,
+input[data-ui="TextInput"],
+textarea[data-ui="TextInput"],
+[data-testid="string-input"] input,
+[data-testid="text-input"] textarea,
+[class*="TextInput"] input,
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="url"],
+input[type="password"],
+select,
+textarea {
+  border-radius: 12px !important;
+}
+
+/* 确保所有 Sanity UI TextInput 组件圆角 */
+div[data-ui="TextInput"] {
+  border-radius: 12px !important;
+}
+
+/* ── 按钮统一圆角 ── */
+button[data-ui="Button"] {
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* ── 卡片圆角 ── */
+[data-ui="Card"] {
+  border-radius: 12px !important;
+}
+
+/* ── 图片上传区 — 大型拖放区 ── */
+[data-testid="file-input"],
+[class*="FileInput"],
+[class*="file-input"],
+[class*="upload"],
+[data-ui="UploadTarget"],
+div[data-testid="file-input"] {
+  min-height: 200px !important;
+  border: 2px dashed rgba(0, 0, 0, 0.15) !important;
+  border-radius: 16px !important;
+  transition: all 0.25s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.01) !important;
+  cursor: pointer !important;
+  padding: 32px !important;
+}
+
+[data-testid="file-input"]:hover,
+[data-ui="UploadTarget"]:hover,
+div[data-testid="file-input"]:hover {
+  border-color: rgba(59, 106, 238, 0.4) !important;
+  background: rgba(59, 106, 238, 0.03) !important;
+}
+
+[data-testid="file-input"]:focus-within,
+[data-ui="UploadTarget"]:focus-within {
+  border-color: rgba(59, 106, 238, 0.6) !important;
+  background: rgba(59, 106, 238, 0.04) !important;
+  box-shadow: 0 0 0 3px rgba(59, 106, 238, 0.15) !important;
+}
+
+/* 拖放区域内的文字样式 */
+[data-testid="file-input"] span,
+[data-testid="file-input"] p,
+[data-testid="file-input"] [class*="text"] {
+  font-size: 14px !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 已上传图片预览区域 */
+[data-testid="file-input"] img,
+[class*="upload"] img {
+  border-radius: 10px !important;
+}
+
+/* ── 按钮色调统一 ── */
+/* Primary 按钮：蓝紫色 */
+[data-ui="Button"][data-tone="primary"] {
+  background: linear-gradient(135deg, #3b6aee 0%, #6d28d9 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(59, 106, 238, 0.25) !important;
+}
+
+[data-ui="Button"][data-tone="primary"]:hover {
+  box-shadow: 0 4px 16px rgba(59, 106, 238, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* Secondary 按钮 */
+[data-ui="Button"][data-tone="default"],
+[data-ui="Button"]:not([data-tone]) {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: rgba(0, 0, 0, 0.75) !important;
+}
+
+[data-ui="Button"][data-tone="default"]:hover,
+[data-ui="Button"]:not([data-tone]):hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 危险按钮 */
+[data-ui="Button"][data-tone="critical"] {
+  background: #ef4444 !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* ── 全局排版优化 ── */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Pane / 文档视图留白 ── */
+[data-ui="Pane"] {
+  background: #fafafa !important;
+}
+
+[data-ui="PaneContent"] {
+  padding: 24px 32px !important;
+}
+
+/* ── 表单字段间距增大 ── */
+[data-testid="field"] {
+  margin-bottom: 4px !important;
+}
+
+/* ── 对话卡片阴影 ── */
+[data-ui="Card"][data-tone="default"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+[data-ui="Card"][data-tone="default"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── 搜索栏圆角 ── */
+[data-ui="SearchInput"] input {
+  border-radius: 12px !important;
+}
+
+/* ── Select 下拉圆角 ── */
+[data-ui="Select"] select {
+  border-radius: 12px !important;
+}
+
+/* ── 工具提示、Badge 圆角 ── */
+[data-ui="Badge"] {
+  border-radius: 8px !important;
+}
+
+/* ── 可滚动区域优化 ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ── Focus 状态可访问性（WCAG AA） ── */
+*:focus-visible {
+  outline: 2px solid #3b6aee !important;
+  outline-offset: 2px !important;
+  border-radius: 4px !important;
+}
+
+/* ── 暗色模式适配 ── */
+@media (prefers-color-scheme: dark) {
+  [data-ui="Navbar"] {
+    background: rgba(24, 24, 27, 0.9) !important;
+    border-right-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  [data-ui="Pane"] {
+    background: #18181b !important;
+  }
+
+  [data-testid="file-input"],
+  [data-ui="UploadTarget"],
+  div[data-testid="file-input"] {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+  }
+
+  [data-testid="file-input"]:hover,
+  [data-ui="UploadTarget"]:hover {
+    border-color: rgba(96, 145, 246, 0.4) !important;
+    background: rgba(96, 145, 246, 0.06) !important;
+  }
+
+  [data-testid="file-input"]:focus-within,
+  [data-ui="UploadTarget"]:focus-within {
+    border-color: rgba(96, 145, 246, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(96, 145, 246, 0.2) !important;
+  }
+
+  [data-ui="Button"][data-tone="default"],
+  [data-ui="Button"]:not([data-tone]) {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  [data-ui="Button"][data-tone="default"]:hover,
+  [data-ui="Button"]:not([data-tone]):hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  *:focus-visible {
+    outline-color: #6091f6 !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  [data-testid="file-input"] span,
+  [data-testid="file-input"] p,
+  [data-testid="file-input"] [class*="text"] {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+}

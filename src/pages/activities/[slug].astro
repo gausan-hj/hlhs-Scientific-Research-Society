@@ -4,8 +4,9 @@ import SanityImage from '@components/common/SanityImage.astro';
 import RichText from '@components/common/RichText.astro';
 import ScrollReveal from '@components/common/ScrollReveal.astro';
 import { sanityClient } from 'sanity:client';
-import { ACTIVITY_BY_SLUG_QUERY, ACTIVITIES_QUERY } from '@sanity/queries';
-import { SITE, formatDate, blocksToText, siteUrl } from '@lib/utils';
+import { ACTIVITY_BY_SLUG_QUERY } from '@sanity/queries';
+import { formatDate, blocksToText, siteUrl } from '@lib/utils';
+import { urlFor } from '../../sanity/client';
 
 export async function getStaticPaths() {
   const activities = await sanityClient.fetch(
@@ -23,13 +24,14 @@ if (!activity) {
 
 const seoTitle = activity.seo?.metaTitle || activity.title;
 const seoDescription = activity.seo?.metaDescription || activity.excerpt || blocksToText(activity.body);
-const seoImage = activity.coverImage;
+const ogImage = activity.seo?.ogImage || activity.coverImage;
+const seoImage = (ogImage?.asset || ogImage?._ref) ? urlFor(ogImage).width(1200).url() : undefined;
 ---
 
 <BaseLayout
   title={seoTitle}
   description={seoDescription}
-  image={seoImage ? (activity.seo?.ogImage ? undefined : undefined) : undefined}
+  image={seoImage}
   canonical={siteUrl(`/activities/${slug}`)}
   type="article"
   publishedAt={activity.date}
@@ -56,10 +58,9 @@ const seoImage = activity.coverImage;
         </div>
       </ScrollReveal>
 
-      {/* Cover Image */}
       {activity.coverImage && (
         <ScrollReveal>
-          <div class="mb-10 rounded-2xl overflow-hidden shadow-xl">
+          <div class="mb-10 rounded-2xl overflow-hidden shadow-lg">
             <SanityImage
               image={activity.coverImage}
               alt={activity.title}
@@ -71,17 +72,15 @@ const seoImage = activity.coverImage;
         </ScrollReveal>
       )}
 
-      {/* Content */}
       <ScrollReveal>
         <div class="prose-custom">
           <RichText blocks={activity.body} />
         </div>
       </ScrollReveal>
 
-      {/* Gallery */}
       {activity.gallery?.length > 0 && (
         <section class="mt-16">
-          <h2 class="text-2xl font-bold text-text mb-6">活動相冊</h2>
+          <h2 class="text-2xl font-bold text-text mb-6">活动相册</h2>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             {activity.gallery.map((img: any) => (
               <div class="rounded-xl overflow-hidden shadow-md">
@@ -100,16 +99,15 @@ const seoImage = activity.coverImage;
         </section>
       )}
 
-      <!-- Back -->
       <div class="mt-12 text-center">
         <a
           href="/activities"
-          class="inline-flex items-center text-primary-600 font-medium text-sm hover:text-primary-700 transition-colors"
+          class="inline-flex items-center text-ocean-600 font-medium text-sm hover:text-ocean-700 transition-colors"
         >
           <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
-          返回活動列表
+          返回活动列表
         </a>
       </div>
     </div>

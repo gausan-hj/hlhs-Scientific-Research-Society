@@ -1,6 +1,5 @@
 ---
 import SanityImage from '../common/SanityImage.astro';
-import ScrollReveal from '../common/ScrollReveal.astro';
 
 interface Props {
   name: string;
@@ -15,12 +14,12 @@ const { name, role, term, photo, bio } = Astro.props;
 const roleMap: Record<string, string> = {
   president: '主席',
   'vice-president': '副主席',
-  secretary: '秘書',
-  treasurer: '財政',
-  academic: '學術',
-  publicity: '宣傳',
-  'general-affairs': '總務',
-  recreation: '康樂',
+  secretary: '秘书',
+  treasurer: '财政',
+  academic: '学术',
+  publicity: '宣传',
+  'general-affairs': '总务',
+  recreation: '康乐',
   it: 'IT',
 };
 ---
@@ -32,13 +31,13 @@ const roleMap: Record<string, string> = {
         <SanityImage image={photo} alt={name} class="w-full h-full object-cover" maxWidth={150} />
       </div>
     ) : (
-      <div class="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
-        <span class="text-xl font-bold text-primary-600">{name[0]}</span>
+      <div class="w-16 h-16 rounded-full bg-ocean-100 dark:bg-ocean-900/30 flex items-center justify-center shrink-0">
+        <span class="text-xl font-bold text-ocean-600">{name[0]}</span>
       </div>
     )}
     <div>
       <h3 class="font-semibold text-text">{name}</h3>
-      <p class="text-sm text-primary-600 font-medium">{roleMap[role] || role}</p>
+      <p class="text-sm text-ocean-600 font-medium">{roleMap[role] || role}</p>
       <p class="text-xs text-text-muted">{term}</p>
     </div>
   </div>

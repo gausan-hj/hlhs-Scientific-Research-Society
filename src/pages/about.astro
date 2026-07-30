@@ -12,7 +12,6 @@ const [teachers, committees] = await Promise.all([
   sanityClient.fetch(COMMITTEE_QUERY),
 ]);
 
-// Group committees by term
 const committeesByTerm = (committees || []).reduce((acc: Record<string, any[]>, member: any) => {
   const term = member.term || '其他';
   if (!acc[term]) acc[term] = [];
@@ -23,41 +22,33 @@ const committeesByTerm = (committees || []).reduce((acc: Record<string, any[]>, 
 const sortedTerms = Object.keys(committeesByTerm).sort((a, b) => b.localeCompare(a));
 ---
 
-<BaseLayout
-  title="關於我們"
-  description="了解科研學會的成立宗旨、顧問老師及理事名單"
-  canonical={`${SITE.url}/about`}
->
+<BaseLayout title="关于我们" description="了解科研学会的成立宗旨、顾问老师及理事名单" canonical={`${SITE.url}/about`}>
+
   <!-- Hero -->
-  <section class="py-16 lg:py-24 bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-slate-900 dark:via-slate-900 dark:to-secondary-950">
-    <div class="container-custom text-center">
-      <h1 class="text-4xl sm:text-5xl font-bold text-text mb-4">關於我們</h1>
-      <p class="text-lg text-text-muted max-w-2xl mx-auto">
-        科研學會致力於推動學術研究與科技創新，為學生提供探索科學的機會，培養研究精神與團隊合作能力。
+  <section class="pt-16 pb-12 lg:pt-24 lg:pb-16 text-center hero-gradient">
+    <div class="container-custom">
+      <div class="section-label justify-center">About</div>
+      <h1 class="text-[clamp(2rem,5vw,3rem)] font-extrabold mb-4 text-text">关于我们</h1>
+      <p class="text-base lg:text-lg leading-relaxed max-w-2xl mx-auto text-text-secondary">
+        科研学会致力于推动学术研究与科技创新，为学生提供探索科学的机会，培养研究精神与团队合作能力。
       </p>
     </div>
   </section>
 
   <!-- Mission -->
-  <section class="py-16 lg:py-24">
+  <section class="section">
     <div class="container-custom max-w-4xl">
       <ScrollReveal>
         <div class="grid md:grid-cols-2 gap-8">
-          <div class="card p-8">
-            <div class="text-3xl mb-4" aria-hidden="true">🎯</div>
-            <h2 class="text-xl font-bold text-text mb-3">成立宗旨</h2>
-            <p class="text-text-muted leading-relaxed">
-              本學會旨在培養學生對科學研究的興趣，透過各類學術活動、比賽及工作坊，
-              提升學生的科學素養及研究能力，並建立一個互相學習、共同成長的平台。
-            </p>
+          <div class="card-static p-8 text-center md:text-left">
+            <div class="text-2xl mb-3" aria-hidden="true">🎯</div>
+            <h2 class="text-xl font-bold mb-3 text-text">成立宗旨</h2>
+            <p class="text-small leading-relaxed">本学会旨在培养学生对科学研究的兴趣，通过各类学术活动、比赛及工作坊，提升学生的科学素养及研究能力，并建立一个互相学习、共同成长的平台。</p>
           </div>
-          <div class="card p-8">
-            <div class="text-3xl mb-4" aria-hidden="true">💡</div>
-            <h2 class="text-xl font-bold text-text mb-3">願景</h2>
-            <p class="text-text-muted leading-relaxed">
-              我們希望每位會員都能在科研學會中找到自己的興趣方向，
-              培養獨立思考與解決問題的能力，為未來的學術及職業發展奠定基礎。
-            </p>
+          <div class="card-static p-8 text-center md:text-left">
+            <div class="text-2xl mb-3" aria-hidden="true">💡</div>
+            <h2 class="text-xl font-bold mb-3 text-text">愿景</h2>
+            <p class="text-small leading-relaxed">我们希望每位会员都能在科研学会中找到自己的兴趣方向，培养独立思考与解决问题的能力，为未来的学术及职业发展奠定基础。</p>
           </div>
         </div>
       </ScrollReveal>
@@ -66,22 +57,18 @@ const sortedTerms = Object.keys(committeesByTerm).sort((a, b) => b.localeCompare
 
   <!-- Teachers -->
   {teachers.length > 0 && (
-    <section class="py-16 lg:py-24 bg-bg-alt">
+    <section class="section-lg" style="background: var(--bg-alt);">
       <div class="container-custom">
         <ScrollReveal>
           <div class="text-center mb-10">
-            <h2 class="text-3xl sm:text-4xl font-bold text-text">顧問老師</h2>
-            <p class="mt-2 text-text-muted">感謝各位老師的指導與支持</p>
+            <div class="section-label justify-center">Faculty</div>
+            <h2 class="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold mb-2 text-text">顾问老师</h2>
+            <p class="text-small">感谢各位老师的指导与支持</p>
           </div>
         </ScrollReveal>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto scroll-reveal-stagger">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto scroll-reveal-stagger">
           {teachers.map((teacher: any) => (
-            <TeacherCard
-              name={teacher.name}
-              title={teacher.title}
-              photo={teacher.photo}
-              bio={teacher.bio}
-            />
+            <TeacherCard name={teacher.name} title={teacher.title} photo={teacher.photo} bio={teacher.bio} />
           ))}
         </div>
       </div>
@@ -90,27 +77,21 @@ const sortedTerms = Object.keys(committeesByTerm).sort((a, b) => b.localeCompare
 
   <!-- Committees -->
   {sortedTerms.length > 0 && (
-    <section class="py-16 lg:py-24">
+    <section class="section-lg">
       <div class="container-custom">
         <ScrollReveal>
           <div class="text-center mb-10">
-            <h2 class="text-3xl sm:text-4xl font-bold text-text">理事名單</h2>
-            <p class="mt-2 text-text-muted">歷屆及現屆理事會成員</p>
+            <div class="section-label justify-center">Leadership</div>
+            <h2 class="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold mb-2 text-text">理事名单</h2>
+            <p class="text-small">历届及现届理事会成员</p>
           </div>
         </ScrollReveal>
-
         {sortedTerms.map((term) => (
-          <div class="mb-12">
-            <h3 class="text-xl font-bold text-text mb-4 text-center">{term}</h3>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          <div class="mb-10">
+            <h3 class="text-xl font-bold mb-5 text-center text-text">{term}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
               {(committeesByTerm[term] || []).map((member: any) => (
-                <CommitteeCard
-                  name={member.name}
-                  role={member.role}
-                  term={member.term}
-                  photo={member.photo}
-                  bio={member.bio}
-                />
+                <CommitteeCard name={member.name} role={member.role} term={member.term} photo={member.photo} bio={member.bio} />
               ))}
             </div>
           </div>

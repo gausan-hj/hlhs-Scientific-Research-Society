@@ -2,43 +2,39 @@
 import { SITE } from '@lib/constants';
 ---
 
-<footer class="border-t border-border bg-bg-alt" role="contentinfo">
-  <div class="container-custom py-12">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Site Info -->
-      <div>
-        <a href="/" class="flex items-center gap-2 text-lg font-bold text-text mb-3">
-          <img src="/logo.png" alt={SITE.name} class="h-8 w-auto" />
+<footer role="contentinfo" style="background: var(--bg-alt); border-top: 1px solid var(--border-light);">
+  <div class="container-custom py-12 lg:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+
+      <!-- Brand -->
+      <div class="md:col-span-2">
+        <a href="/" class="inline-flex items-center gap-2.5 mb-4">
+          <img src="/logo.png" alt={SITE.name} class="h-9 w-auto" />
         </a>
-        <p class="text-sm text-text-muted leading-relaxed">
-          {SITE.description}
-        </p>
+        <p class="text-small max-w-xs leading-relaxed">{SITE.description}</p>
       </div>
 
       <!-- Quick Links -->
       <div>
-        <h3 class="text-sm font-semibold text-text mb-3">快速連結</h3>
-        <ul class="space-y-2">
-          <li><a href="/about" class="text-sm text-text-muted hover:text-primary-600 transition-colors">關於我們</a></li>
-          <li><a href="/activities" class="text-sm text-text-muted hover:text-primary-600 transition-colors">最新活動</a></li>
-          <li><a href="/announcements" class="text-sm text-text-muted hover:text-primary-600 transition-colors">最新公告</a></li>
-          <li><a href="/resources" class="text-sm text-text-muted hover:text-primary-600 transition-colors">學習資源</a></li>
+        <h4 class="mb-4 text-[0.8rem] font-700 tracking-wider uppercase" style="color: var(--text)">导航</h4>
+        <ul class="space-y-2.5">
+          <li><a href="/about" class="text-small hover:text-ocean-700 transition-colors">关于我们</a></li>
+          <li><a href="/activities" class="text-small hover:text-ocean-700 transition-colors">活动</a></li>
+          <li><a href="/announcements" class="text-small hover:text-ocean-700 transition-colors">公告</a></li>
+          <li><a href="/memories" class="text-small hover:text-ocean-700 transition-colors">回忆簿</a></li>
+          <li><a href="/resources" class="text-small hover:text-ocean-700 transition-colors">资源</a></li>
         </ul>
       </div>
 
-      <!-- Contact Info -->
+      <!-- Contact -->
       <div>
-        <h3 class="text-sm font-semibold text-text mb-3">聯絡我們</h3>
-        <p class="text-sm text-text-muted leading-relaxed">
-          如有任何查詢，歡迎聯絡科研學會負責老師或幹事。
-        </p>
+        <h4 class="mb-4 text-[0.8rem] font-700 tracking-wider uppercase" style="color: var(--text)">联系</h4>
+        <p class="text-small leading-relaxed">如有任何查询，欢迎联系科研学会负责老师或干事。</p>
       </div>
     </div>
 
-    <div class="mt-8 pt-8 border-t border-border text-center">
-      <p class="text-xs text-text-muted">
-        &copy; {new Date().getFullYear()} {SITE.name}。版權所有。
-      </p>
+    <div class="mt-10 pt-8 border-t" style="border-color: var(--border-light);">
+      <p class="text-xs text-center">&copy; {new Date().getFullYear()} {SITE.name}。版权所有。</p>
     </div>
   </div>
 </footer>
