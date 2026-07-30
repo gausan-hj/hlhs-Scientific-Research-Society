@@ -10,6 +10,7 @@ import {
   Image,
   Target,
 } from 'lucide-react';
+import { Dashboard } from './components/Dashboard';
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -21,7 +22,7 @@ export const structure: StructureResolver = (S) =>
         .title('首頁儀表板')
         .icon(LayoutDashboard)
         .child(
-          S.component()
+          S.component(Dashboard)
             .id('dashboard-view')
             .title('儀表板'),
         ),
