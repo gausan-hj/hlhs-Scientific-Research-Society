@@ -25,33 +25,56 @@ interface Polaroid {
 
 const photos: Polaroid[] = [];
 for (const album of albums) {
-  for (const img of album.images || []) {
+  const images = album.images;
+  if (images && images.length > 0) {
+    for (const img of images) {
+      photos.push({
+        src: urlFor(img).width(440).auto('format').url(),
+        fullSrc: urlFor(img).width(1600).auto('format').url(),
+        alt: img.alt || img.caption || album.title,
+        raw: img,
+        albumTitle: album.title,
+        eventDate: album.eventDate,
+      });
+    }
+  } else if (album.coverImage) {
     photos.push({
-      src: urlFor(img).width(440).auto('format').url(),
-      fullSrc: urlFor(img).width(1600).auto('format').url(),
-      alt: img.alt || img.caption || album.title,
-      raw: img,
+      src: urlFor(album.coverImage).width(440).auto('format').url(),
+      fullSrc: urlFor(album.coverImage).width(1600).auto('format').url(),
+      alt: album.title,
+      raw: album.coverImage,
       albumTitle: album.title,
       eventDate: album.eventDate,
     });
   }
 }
 
-const CARD_W = 220;
-const GAP = 40;
-const PAD = 60;
-const STEP = CARD_W + GAP;
-const NAIL_Y = 28;
-const ROPE_SAG = 40;
-const SVG_H = 100;
-const totalWidth = photos.length > 0 ? PAD * 2 + photos.length * CARD_W + (photos.length - 1) * GAP : 0;
+// Layout constants
+const CARD_W = 200;       // polaroid card width
+const CARD_BORDER = 8;    // white border padding on each side
+const PHOTO_W = CARD_W - CARD_BORDER * 2; // photo area width
 
-function nailX(i: number) { return PAD + CARD_W / 2 + i * STEP; }
-function rotation(i: number) { return (((i % 5) - 2) * 1.8).toFixed(1); }
-function formatDate(d: string) {
-  if (!d) return '';
-  return d;
-}
+const NAIL_SPACING = CARD_W + 56; // horizontal spacing between nails
+const PAD_X = 80;          // horizontal padding before first / after last nail
+const ROPE_Y = 30;         // rope Y position in SVG (room for sag)
+const NAIL_R = 5;          // nail circle radius
+const PIN_H = 16;          // clothespin visible height
+const PIN_W = 10;          // clothespin width
+const ROPE_SAG = 36;       // rope sag depth
+
+const SVG_H = ROPE_Y + ROPE_SAG + 40;
+
+const totalCards = photos.length;
+const totalWidth = totalCards > 0
+  ? PAD_X * 2 + (totalCards - 1) * NAIL_SPACING
+  : 0;
+
+const svgViewW = totalWidth + PAD_X * 2 + 100;
+const svgViewH = SVG_H;
+
+function nailX(i: number) { return PAD_X + i * NAIL_SPACING; }
+function rotation(i: number) { return (((i % 5) - 2) * 2.4).toFixed(1); }
+function formatDate(d: string) { return d || ''; }
 ---
 
 <BaseLayout
@@ -76,7 +99,7 @@ function formatDate(d: string) {
 
   <!-- Memory Wall -->
   <section class="pb-20 sm:pb-32" style="background: var(--bg);">
-    {photos.length === 0 ? (
+    {!albums || albums.length === 0 ? (
       <div class="container-custom text-center py-20">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#ede4d3] mb-5">
           <svg class="h-7 w-7 text-[#b8a080]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
@@ -87,16 +110,16 @@ function formatDate(d: string) {
       <div class="relative group/wall" id="memory-wall">
         <!-- Scroll arrows -->
         <button
-          class="absolute left-2 top-[calc(50%+20px)] -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/85 shadow-md flex items-center justify-center opacity-0 group-hover/wall:opacity-100 transition-opacity duration-300 border border-[#e8dfd0] hover:bg-white"
+          class="absolute left-4 top-[calc(50%-30px)] -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/90 shadow-lg flex items-center justify-center opacity-0 group-hover/wall:opacity-100 transition-opacity duration-300 border border-[#e8dfd0] hover:bg-white"
           type="button" aria-label="向左滑动" data-wall-dir="left"
         >
-          <svg class="h-4 w-4 text-[#8b7355]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+          <svg class="h-5 w-5 text-[#8b7355]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
         </button>
         <button
-          class="absolute right-2 top-[calc(50%+20px)] -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/85 shadow-md flex items-center justify-center opacity-0 group-hover/wall:opacity-100 transition-opacity duration-300 border border-[#e8dfd0] hover:bg-white"
+          class="absolute right-4 top-[calc(50%-30px)] -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/90 shadow-lg flex items-center justify-center opacity-0 group-hover/wall:opacity-100 transition-opacity duration-300 border border-[#e8dfd0] hover:bg-white"
           type="button" aria-label="向右滑动" data-wall-dir="right"
         >
-          <svg class="h-4 w-4 text-[#8b7355]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+          <svg class="h-5 w-5 text-[#8b7355]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
         </button>
 
         <!-- Scrollable track -->
@@ -105,93 +128,116 @@ function formatDate(d: string) {
           style="scrollbar-width:none; -ms-overflow-style:none;"
           data-wall-track
         >
-          <div class="relative inline-flex items-start min-w-max" style="padding: 60px {PAD}px 24px {PAD}px;">
+          <div
+            class="relative inline-flex min-w-max"
+            style={`height:520px; padding-left:${PAD_X}px; padding-right:${PAD_X}px; padding-top:0px; min-width:${svgViewW}px;`}
+          >
+            {/*
+              Each "hanging unit" is a vertical block from nail → clothespin → polaroid.
+              The nail and rope live in the SVG, the clothespin+polaroid are HTML positioned
+              so the clothespin overlaps the SVG nail point.
+            */}
 
-            {/* SVG Rope */}
+            {/* SVG rope layer */}
             <svg
-              class="absolute top-0 left-0 pointer-events-none z-0 overflow-visible"
-              style={`width:${totalWidth}px; height:${SVG_H}px;`}
-              viewBox={`0 0 ${totalWidth} ${SVG_H}`}
+              class="absolute left-0 top-0 pointer-events-none z-10 overflow-visible"
+              style={`width:${svgViewW}px; height:${SVG_H}px;`}
+              viewBox={`0 0 ${svgViewW} ${svgViewH}`}
               aria-hidden="true"
             >
               <defs>
                 <linearGradient id="rope-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stop-color="#c4a46c"/>
-                  <stop offset="30%" stop-color="#d4b87a"/>
-                  <stop offset="60%" stop-color="#c9a862"/>
+                  <stop offset="50%" stop-color="#d4b87a"/>
                   <stop offset="100%" stop-color="#b89550"/>
                 </linearGradient>
               </defs>
-              {/* Rope main line */}
-              <path
-                d={`M ${nailX(0)} ${NAIL_Y} ${
-                  photos.map((_, i) => {
-                    if (i === 0) return '';
-                    const prevX = nailX(i - 1);
-                    const curX = nailX(i);
-                    const midX = (prevX + curX) / 2;
-                    return `Q ${midX} ${NAIL_Y + ROPE_SAG} ${curX} ${NAIL_Y}`;
-                  }).join(' ')
-                }`}
-                fill="none"
-                stroke="url(#rope-grad)"
-                stroke-width="4"
-                stroke-linecap="round"
-              />
-              {/* Rope texture shadow */}
-              <path
-                d={`M ${nailX(0)} ${NAIL_Y + 2} ${
-                  photos.map((_, i) => {
-                    if (i === 0) return '';
-                    const prevX = nailX(i - 1);
-                    const curX = nailX(i);
-                    const midX = (prevX + curX) / 2;
-                    return `Q ${midX} ${NAIL_Y + ROPE_SAG + 2} ${curX} ${NAIL_Y + 2}`;
-                  }).join(' ')
-                }`}
-                fill="none"
-                stroke="rgba(139,115,85,0.15)"
-                stroke-width="1"
-                stroke-linecap="round"
-              />
-              {/* Nails */}
+
+              {/* Rope curve — one continuous path through all nail points */}
+              {photos.length > 0 && (
+                <path
+                  d={`M ${nailX(0)} ${ROPE_Y} ${
+                    photos.map((_, i) => {
+                      if (i === 0) return '';
+                      const px = nailX(i - 1);
+                      const cx = nailX(i);
+                      const mx = (px + cx) / 2;
+                      return `Q ${mx} ${ROPE_Y + ROPE_SAG} ${cx} ${ROPE_Y}`;
+                    }).join(' ')
+                  }`}
+                  fill="none"
+                  stroke="url(#rope-grad)"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                />
+              )}
+
+              {/* Nails — one at each photo position */}
               {photos.map((_, i) => {
                 const cx = nailX(i);
+                const cy = ROPE_Y;
                 return (
                   <g>
-                    <circle cx={cx} cy={NAIL_Y} r="6" fill="#c4c0ba" stroke="#a39c93" stroke-width="1"/>
-                    <circle cx={cx - 1.5} cy={NAIL_Y - 1.5} r="2" fill="#e8e4de"/>
+                    {/* Nail head */}
+                    <circle cx={cx} cy={cy} r={NAIL_R} fill="#c8c4c0" stroke="#a8a098" stroke-width="1"/>
+                    {/* Nail highlight */}
+                    <circle cx={cx - 1.5} cy={cy - 1.5} r="1.8" fill="#ece8e4"/>
                   </g>
                 );
               })}
+
+              {/* Rope end knots */}
+              {photos.length > 0 && (
+                <>
+                  <circle cx={nailX(0) - 12} cy={ROPE_Y} r="4" fill="none" stroke="url(#rope-grad)" stroke-width="3" opacity="0.7"/>
+                  <circle cx={nailX(totalCards - 1) + 12} cy={ROPE_Y} r="4" fill="none" stroke="url(#rope-grad)" stroke-width="3" opacity="0.7"/>
+                  {/* Rope tails */}
+                  <path d={`M ${nailX(0) - 16} ${ROPE_Y} Q ${nailX(0) - 40} ${ROPE_Y + 28} ${nailX(0) - 50} ${ROPE_Y + 60}`} fill="none" stroke="url(#rope-grad)" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+                  <path d={`M ${nailX(totalCards - 1) + 16} ${ROPE_Y} Q ${nailX(totalCards - 1) + 40} ${ROPE_Y + 28} ${nailX(totalCards - 1) + 50} ${ROPE_Y + 60}`} fill="none" stroke="url(#rope-grad)" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+                </>
+              )}
             </svg>
 
-            {/* Polaroid cards */}
+            {/* Polaroid cards — each positioned under its nail */}
             {photos.map(function(photo, i) {
+              const cx = nailX(i);
+              const cardLeft = cx - CARD_W / 2;
+              const pinTop = ROPE_Y + NAIL_R;
+              const cardTop = pinTop + PIN_H;
+
               return (
                 <div
-                  class="shrink-0"
-                  style={`width:${CARD_W}px; margin-top:50px;${i === photos.length - 1 ? '' : ` margin-right:${GAP}px;`}`}
+                  class="absolute shrink-0"
+                  style={`left:${cardLeft}px; top:${cardTop}px; width:${CARD_W}px;`}
                 >
-                  {/* Clothespin */}
-                  <div class="flex flex-col items-center -mb-1 relative z-10">
-                    <div class="w-4 h-5 bg-[#c4956a] rounded-b-[3px] shadow-sm" style="background: linear-gradient(180deg, #d4a574 0%, #b8845a 100%);"></div>
-                    <div class="w-5 h-1.5 bg-[#a0704a] rounded-sm -mt-px"></div>
+                  {/* Clothespin — positioned to overlap the nail/rope point */}
+                  <div class="absolute left-1/2 -translate-x-1/2 z-20 flex flex-col items-center" style={`top:${-(PIN_H + 2)}px;`}>
+                    {/* Pin body */}
+                    <div
+                      class="relative"
+                      style={`width:${PIN_W + 4}px; height:${PIN_H + 12}px;`}
+                    >
+                      {/* Back jaw (behind rope) */}
+                      <div class="absolute left-0 right-0 top-0 h-full rounded-b-[3px]" style="background: linear-gradient(180deg, #c8a070 0%, #b08050 100%);"></div>
+                      {/* Front jaw (in front of rope, over card) */}
+                      <div class="absolute left-0.5 right-0.5 top-0 h-full rounded-b-[3px]" style="background: linear-gradient(180deg, #dbb888 0%, #c4956a 80%); box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></div>
+                      {/* Metal spring */}
+                      <div class="absolute left-0 right-0" style="top:5px; height:3px; background: linear-gradient(180deg, #999 0%, #ccc 50%, #999 100%); border-radius:1px;"></div>
+                      {/* Top notch */}
+                      <div class="absolute left-1/2 -translate-x-1/2 top-0" style={`width:${PIN_W - 2}px; height:3px; background:#8b6a4a; border-radius:0 0 2px 2px;`}></div>
+                    </div>
                   </div>
-
-                  {/* Drop string */}
-                  <div class="w-px h-3 mx-auto bg-[#c4a46c]/30"></div>
 
                   {/* Polaroid card */}
                   <div
-                    class="bg-white rounded-sm shadow-md transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-xl cursor-pointer"
-                    style={`transform: rotate(${rotation(i)}deg); box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);`}
+                    class="bg-white rounded-sm cursor-pointer transition-all duration-300 ease-out hover:scale-[1.04]"
+                    style={`transform: rotate(${rotation(i)}deg); transform-origin: top center; box-shadow: 0 3px 8px rgba(0,0,0,0.06), 0 6px 20px rgba(0,0,0,0.04);`}
                     data-lightbox-src={photo.fullSrc}
                     data-lightbox-alt={photo.alt}
                   >
-                    {/* Photo area */}
+                    {/* Photo area with white border */}
                     <div class="p-2 pb-0">
-                      <div class="aspect-[3/4] overflow-hidden bg-gray-100">
+                      <div class="aspect-[3/4] overflow-hidden bg-gray-100 rounded-[1px]">
                         <img
                           src={photo.src}
                           alt={photo.alt}
@@ -201,10 +247,13 @@ function formatDate(d: string) {
                         />
                       </div>
                     </div>
-                    {/* Date caption */}
-                    <div class="px-3 pt-2.5 pb-3.5 text-center">
-                      <p class="text-xs font-medium text-[#8b7355] tracking-wide">
+                    {/* Date caption — centered in white area */}
+                    <div class="px-3 pt-2.5 pb-3">
+                      <p class="text-[11px] font-medium text-[#8b7355] tracking-wider text-center">
                         {formatDate(photo.eventDate)}
+                      </p>
+                      <p class="text-[9px] text-[#b8a080] tracking-wide text-center mt-0.5 leading-tight truncate">
+                        {photo.albumTitle}
                       </p>
                     </div>
                   </div>
@@ -215,8 +264,8 @@ function formatDate(d: string) {
         </div>
 
         {/* Fade edges */}
-        <div class="pointer-events-none absolute inset-y-0 left-0 w-12 z-20" style="background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);"></div>
-        <div class="pointer-events-none absolute inset-y-0 right-0 w-12 z-20" style="background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);"></div>
+        <div class="pointer-events-none absolute inset-y-0 left-0 w-16 z-20" style="background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);"></div>
+        <div class="pointer-events-none absolute inset-y-0 right-0 w-16 z-20" style="background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);"></div>
       </div>
     )}
   </section>
@@ -267,7 +316,7 @@ function formatDate(d: string) {
 
     // Drag to scroll
     var isDown = false, startX = 0, scrollLeft = 0;
-    track.addEventListener('mousedown', function(e: MouseEvent) {
+    track.addEventListener('mousedown', function(e) {
       isDown = true;
       startX = e.pageX - track.offsetLeft;
       scrollLeft = track.scrollLeft;
@@ -281,7 +330,7 @@ function formatDate(d: string) {
       isDown = false;
       track.style.cursor = '';
     });
-    track.addEventListener('mousemove', function(e: MouseEvent) {
+    track.addEventListener('mousemove', function(e) {
       if (!isDown) return;
       e.preventDefault();
       track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.5;
